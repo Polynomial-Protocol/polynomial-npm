@@ -98,13 +98,15 @@ export async function signMarketOrder(
  */
 export const submitMarketOrder = async (
     marketId: string,
-    data: MarketOrderRequest
+    data: MarketOrderRequest,
+    x_api_key: string
 ): Promise<any> => {
     const response = await fetch(`${API_ORDERBOOK_ENDPOINT}/market_order/${marketId}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'x-api-key': x_api_key // Include the X-API-Key for authentication
         },
         body: JSON.stringify(data)
     });
@@ -139,7 +141,8 @@ export const placeOrderbookMarketOrder = async (
     reduceOnly: boolean = false,
     wallet: string,
     accountId: string,
-    sessionKey: string
+    sessionKey: string,
+    x_api_key: string
 ): Promise<any> => {
     const order = {
         marketId,
@@ -165,6 +168,6 @@ export const placeOrderbookMarketOrder = async (
     return await submitMarketOrder(marketId, {
         ...order,
         id: signature
-    });
+    }, x_api_key);
 };
 

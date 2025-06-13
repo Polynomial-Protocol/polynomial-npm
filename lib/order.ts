@@ -47,7 +47,8 @@ export const createMarketOrder = async (
     isLong: boolean,
     marketPrice: bigint,
     walletAddress: string,
-    accountId: string
+    accountId: string,
+    x_api_key: string
 ): Promise<any> => {
 
     const acceptablePrice = calculateAcceptablePrice(isLong, marketPrice);
@@ -60,6 +61,7 @@ export const createMarketOrder = async (
         false,
         walletAddress,
         accountId,
-        sessionKey
+        sessionKey,
+        x_api_key
     );
 };

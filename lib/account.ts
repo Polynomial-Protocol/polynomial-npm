@@ -13,11 +13,13 @@ import { IAccountAPIResponse } from "./type";
  * - Filters account data for the current `CHAIN_ID`.
  */
 export const getAccount = async (
-    wallet: string
+    wallet: string,
+    x_api_key: string
 ): Promise<IAccountAPIResponse | null> => {
     // Call the accounts API with ownership type and chain ID filters
     const response = await get(
-        `accounts?owner=${wallet}&ownershipType=SuperOwner&chainIds=${CHAIN_ID}`
+        `accounts?owner=${wallet}&ownershipType=SuperOwner&chainIds=${CHAIN_ID}`,
+        x_api_key
     );
 
     if (response.status === 200) {

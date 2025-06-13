@@ -11,8 +11,10 @@ import { IMarketDataReceived, IMarkets, IPostTradeDetails } from "./type";
  * - Filters market data by `CHAIN_ID` to ensure chain-specific compatibility.
  * - Expects `markets` field in response to contain trading pairs.
  */
-export const getMarkets = async (): Promise<IMarkets[] | null> => {
-    const response = await get(`markets`);
+export const getMarkets = async (
+    x_api_key: string
+): Promise<IMarkets[] | null> => {
+    const response = await get(`markets`, x_api_key);
 
     if (response.status === 200) {
         const data: IMarketDataReceived[] = await response.json();
@@ -40,13 +42,14 @@ export const fetchPostMarketDetails = async (
     accountId: string,
     chainId: string,
     marketId: string,
-    sizeDelta: bigint
+    sizeDelta: bigint,
+    x_api_key: string
 ): Promise<IPostTradeDetails> => {
     const response = await post(`post-trade-details?chainId=${chainId}`, {
         accountId,
         marketId,
         sizeDelta: sizeDelta.toString(), // convert bigint to string for JSON compatibility
-    });
+    }, x_api_key);
 
     const data: IPostTradeDetails = await response.json();
     return data;

@@ -10,6 +10,7 @@ import { createMarketOrder } from '../lib/order';
  */
 const SESSION_KEY = '<SESSION_KEY>';
 const WALLET_ADDRESS = '<PRIMARY_WALLET_ADDRESS>';
+const X_API_KEY = '<X_API_KEY>'; // Raise a discord ticket to get your X-API-Key
 
 getMarkets().then(async (markets) => {
     if (!markets) {
@@ -36,7 +37,7 @@ getMarkets().then(async (markets) => {
      * Fetch trading account details using the primary wallet address.
      * This account will be used to calculate margins and link orders.
      */
-    const account = await getAccount(WALLET_ADDRESS);
+    const account = await getAccount(WALLET_ADDRESS, X_API_KEY);
     if (!account) {
         console.error('Account not found for the given wallet address.');
         return;
@@ -66,7 +67,8 @@ getMarkets().then(async (markets) => {
         account.accountId,
         CHAIN_ID.toString(),
         ethMarket.marketId,
-        position.size
+        position.size,
+        X_API_KEY
     );
 
     console.log('Post Market Details:', postDetails);
@@ -83,7 +85,8 @@ getMarkets().then(async (markets) => {
         position.isLong,
         BigInt(postDetails.fillPrice),
         WALLET_ADDRESS,
-        account.accountId
+        account.accountId,
+        X_API_KEY
     );
 
     console.log('Market Order Status:', orderStatus);

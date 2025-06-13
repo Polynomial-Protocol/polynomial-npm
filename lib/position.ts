@@ -8,9 +8,10 @@ import { IPositionDataReceived } from "./type";
  * @returns Position data or null if not found
  */
 export const fetchPositions = async (
-    wallet: string
+    wallet: string,
+    x_api_key: string
 ): Promise<IPositionDataReceived | null> => {
-    const response = await get(`positions/v2?owner=${wallet}&ownershipType=SuperOwner`);
+    const response = await get(`positions/v2?owner=${wallet}&ownershipType=SuperOwner`, x_api_key);
 
     if (response.status === 200) {
         const data: IPositionDataReceived = await response.json();
