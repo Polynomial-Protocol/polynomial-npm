@@ -2,17 +2,10 @@ import { getAccount } from '../lib/account';
 import { CHAIN_ID } from '../lib/config';
 import { fetchPostMarketDetails, getMarkets } from '../lib/markets';
 import { createMarketOrder } from '../lib/order';
+import { SESSION_KEY, WALLET_ADDRESS, X_API_KEY } from './keys';
 
-/**
- * Replace the following placeholders with actual values:
- * - SESSION_KEY: Session key linked to your API wallet (used for signing)
- * - WALLET_ADDRESS: Your primary trading wallet address
- */
-const SESSION_KEY = '<SESSION_KEY>';
-const WALLET_ADDRESS = '<PRIMARY_WALLET_ADDRESS>';
-const X_API_KEY = '<X_API_KEY>'; // Raise a discord ticket to get your X-API-Key
 
-getMarkets().then(async (markets) => {
+getMarkets(X_API_KEY).then(async (markets) => {
     if (!markets) {
         console.error('Failed to fetch market data.');
         return;
