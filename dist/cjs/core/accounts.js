@@ -1,0 +1,145 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Accounts = void 0;
+const errors_1 = require("../errors");
+const utils_1 = require("../utils");
+/**
+ * Accounts module for handling account management operations
+ */
+class Accounts {
+    constructor(httpClient, chainId) {
+        this.httpClient = httpClient;
+        this.chainId = chainId;
+    }
+    /**
+     * Fetches account information for a given wallet address
+     */
+    async getAccount(walletAddress) {
+        if (!(0, utils_1.isValidAddress)(walletAddress)) {
+            throw new errors_1.ValidationError("Invalid wallet address format", {
+                walletAddress,
+            });
+        }
+        try {
+            const response = await this.httpClient.get(`accounts?owner=${walletAddress}&ownershipType=SuperOwner&chainIds=${this.chainId}`);
+            const account = response.find((item) => item.chainId === this.chainId);
+            return account || null;
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch account for wallet ${walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets account by account ID
+     */
+    async getAccountById(accountId) {
+        try {
+            const response = await this.httpClient.get(`accounts?accountId=${accountId}&chainIds=${this.chainId}`);
+            const account = response.find((item) => item.chainId === this.chainId);
+            return account || null;
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch account by ID ${accountId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets all positions for a specific account
+     */
+    async getPositions(accountId) {
+        try {
+            const response = await this.httpClient.get(`positions/v2?accountId=${accountId}&chainId=${this.chainId}`);
+            return response.positions || [];
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch positions for account ${accountId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets a specific position by market ID
+     */
+    async getPositionByMarket(accountId, marketId) {
+        try {
+            const positions = await this.getPositions(accountId);
+            return (positions.find((position) => position.marketId === marketId) || null);
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch position for market ${marketId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, marketId });
+        }
+    }
+    /**
+     * Gets account summary including positions and key metrics
+     */
+    async getAccountSummary(accountId) {
+        try {
+            const [account, positions] = await Promise.all([
+                this.getAccountById(accountId),
+                this.getPositions(accountId),
+            ]);
+            if (!account) {
+                throw new errors_1.AccountError(`Account not found: ${accountId}`, {
+                    accountId,
+                });
+            }
+            // Calculate totals
+            const totalUnrealizedPnl = positions
+                .reduce((sum, pos) => {
+                return sum + parseFloat(pos.totalRealisedPnlUsd || "0");
+            }, 0)
+                .toFixed(2);
+            const totalRealizedPnl = positions
+                .reduce((sum, pos) => {
+                return sum + parseFloat(pos.totalRealisedPnlUsd || "0");
+            }, 0)
+                .toFixed(2);
+            return {
+                account,
+                positions,
+                totalPositions: positions.length,
+                totalUnrealizedPnl,
+                totalRealizedPnl,
+            };
+        }
+        catch (error) {
+            if (error instanceof errors_1.AccountError) {
+                throw error;
+            }
+            throw new errors_1.AccountError(`Failed to fetch account summary: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId });
+        }
+    }
+    /**
+     * Checks if an account exists for a given wallet address
+     */
+    async accountExists(walletAddress) {
+        try {
+            const account = await this.getAccount(walletAddress);
+            return account !== null;
+        }
+        catch (error) {
+            // If it's a validation error, re-throw it
+            if (error instanceof errors_1.ValidationError) {
+                throw error;
+            }
+            // For other errors, return false
+            return false;
+        }
+    }
+    /**
+     * Gets all accounts owned by a wallet address
+     */
+    async getAllAccountsForWallet(walletAddress) {
+        if (!(0, utils_1.isValidAddress)(walletAddress)) {
+            throw new errors_1.ValidationError("Invalid wallet address format", {
+                walletAddress,
+            });
+        }
+        try {
+            const response = await this.httpClient.get(`accounts?owner=${walletAddress}&chainIds=${this.chainId}`);
+            return response.filter((item) => item.chainId === this.chainId);
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch accounts for wallet ${walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, chainId: this.chainId });
+        }
+    }
+}
+exports.Accounts = Accounts;
+//# sourceMappingURL=accounts.js.map
