@@ -2,11 +2,23 @@
 
 <div align="center">
 
+> ## 🚧 **WORK IN PROGRESS** 🚧
+>
+> ### ✨ Something magical is brewing! ✨
+>
+> **This SDK is currently under active development**
+>
+> 🔮 **Come back in a few days and witness the magic!** 🔮
+>
+> We're crafting something extraordinary for the Polynomial ecosystem.
+>
+> ---
+
 **Official TypeScript SDK for Polynomial Perpetuals**
 
 _Trade crypto perpetuals with ease using a production-ready, type-safe SDK_
 
-[![npm version](https://img.shields.io/npm/v/polynomial-sdk.svg)](https://www.npmjs.com/package/polynomial-sdk)
+[![npm version](https://img.shields.io/npm/v/polynomialfi.svg)](https://www.npmjs.com/package/polynomialfi)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
@@ -53,13 +65,13 @@ polynomial-sdk/
 
 ```bash
 # Using npm
-npm install polynomial-sdk
+npm install polynomialfi
 
 # Using yarn
-yarn add polynomial-sdk
+yarn add polynomialfi
 
 # Using pnpm
-pnpm add polynomial-sdk
+pnpm add polynomialfi
 ```
 
 ### Requirements
@@ -70,7 +82,7 @@ pnpm add polynomial-sdk
 ## 🚀 Quick Start
 
 ```typescript
-import { PolynomialSDK, parseUnits } from "polynomial-sdk";
+import { PolynomialSDK, parseUnits } from "polynomialfi";
 
 // 1. Initialize the SDK
 const sdk = PolynomialSDK.create({
@@ -115,7 +127,7 @@ if (simulation.feasible) {
 ### Basic Configuration
 
 ```typescript
-import { PolynomialSDK } from "polynomial-sdk";
+import { PolynomialSDK } from "polynomialfi";
 
 const sdk = PolynomialSDK.create({
   apiKey: "your-api-key", // Required
@@ -589,7 +601,7 @@ const simulation = await sdk.markets.simulateTrade({...});
 ### 🏗️ Complete Trading Bot Example
 
 ```typescript
-import { PolynomialSDK, parseUnits } from "polynomial-sdk";
+import { PolynomialSDK, parseUnits } from "polynomialfi";
 
 class TradingBot {
   private sdk: PolynomialSDK;
