@@ -1,5 +1,5 @@
 /**
- * Basic usage example of the Polynomial SDK
+ * Basic usage example of the Polynomial SDK (CommonJS version)
  *
  * This example demonstrates:
  * 1. SDK initialization
@@ -9,7 +9,7 @@
  * 5. Error handling
  */
 
-import { PolynomialSDK, parseUnits } from "../src";
+const { PolynomialSDK, parseUnits } = require("../dist/cjs");
 
 // Configuration - replace with your actual values
 const API_KEY = process.env.POLYNOMIAL_API_KEY || "<YOUR_API_KEY>";
@@ -220,4 +220,4 @@ if (require.main === module) {
   runExamples().catch(console.error);
 }
 
-export { basicExample, advancedExample, errorHandlingExample };
+module.exports = { basicExample, advancedExample, errorHandlingExample };
