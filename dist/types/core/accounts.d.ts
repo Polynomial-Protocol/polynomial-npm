@@ -12,13 +12,13 @@ export declare class Accounts {
      */
     getAccount(walletAddress: string): Promise<IAccountAPIResponse | null>;
     /**
-     * Gets all positions for a specific account
+     * Gets all positions for a specific wallet address
      */
-    getPositions(accountId: string): Promise<IPosition[]>;
+    getPositions(walletAddress: string): Promise<IPosition[]>;
     /**
      * Gets a specific position by market ID
      */
-    getPositionByMarket(accountId: string, marketId: string): Promise<IPosition | null>;
+    getPositionByMarket(walletAddress: string, marketId: string): Promise<IPosition | null>;
     /**
      * Gets account summary including positions and key metrics
      */

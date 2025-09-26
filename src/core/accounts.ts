@@ -47,21 +47,21 @@ export class Accounts {
   }
 
   /**
-   * Gets all positions for a specific account
+   * Gets all positions for a specific wallet address
    */
-  async getPositions(accountId: string): Promise<IPosition[]> {
+  async getPositions(walletAddress: string): Promise<IPosition[]> {
     try {
       const response = await this.httpClient.get<IPositionDataReceived>(
-        `positions/v2?accountId=${accountId}&chainId=${this.chainId}`
+        `positions/v2?owner=${walletAddress}&ownershipType=SuperOwner`
       );
 
       return response.positions || [];
     } catch (error) {
       throw new AccountError(
-        `Failed to fetch positions for account ${accountId}: ${
+        `Failed to fetch positions for wallet ${walletAddress}: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        { accountId, chainId: this.chainId }
+        { walletAddress, chainId: this.chainId }
       );
     }
   }
@@ -70,11 +70,11 @@ export class Accounts {
    * Gets a specific position by market ID
    */
   async getPositionByMarket(
-    accountId: string,
+    walletAddress: string,
     marketId: string
   ): Promise<IPosition | null> {
     try {
-      const positions = await this.getPositions(accountId);
+      const positions = await this.getPositions(walletAddress);
       return (
         positions.find((position) => position.marketId === marketId) || null
       );
@@ -83,7 +83,7 @@ export class Accounts {
         `Failed to fetch position for market ${marketId}: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        { accountId, marketId }
+        { walletAddress, marketId }
       );
     }
   }
@@ -111,8 +111,8 @@ export class Accounts {
         );
       }
 
-      // Get positions using the account ID
-      const positions = await this.getPositions(account.accountId);
+      // Get positions using the wallet address
+      const positions = await this.getPositions(walletAddress);
 
       // Calculate totals
       const totalUnrealizedPnl = positions

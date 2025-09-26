@@ -30,27 +30,27 @@ class Accounts {
         }
     }
     /**
-     * Gets all positions for a specific account
+     * Gets all positions for a specific wallet address
      */
-    async getPositions(accountId) {
+    async getPositions(walletAddress) {
         try {
-            const response = await this.httpClient.get(`positions/v2?accountId=${accountId}&chainId=${this.chainId}`);
+            const response = await this.httpClient.get(`positions/v2?owner=${walletAddress}&ownershipType=SuperOwner`);
             return response.positions || [];
         }
         catch (error) {
-            throw new errors_1.AccountError(`Failed to fetch positions for account ${accountId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, chainId: this.chainId });
+            throw new errors_1.AccountError(`Failed to fetch positions for wallet ${walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, chainId: this.chainId });
         }
     }
     /**
      * Gets a specific position by market ID
      */
-    async getPositionByMarket(accountId, marketId) {
+    async getPositionByMarket(walletAddress, marketId) {
         try {
-            const positions = await this.getPositions(accountId);
+            const positions = await this.getPositions(walletAddress);
             return (positions.find((position) => position.marketId === marketId) || null);
         }
         catch (error) {
-            throw new errors_1.AccountError(`Failed to fetch position for market ${marketId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, marketId });
+            throw new errors_1.AccountError(`Failed to fetch position for market ${marketId}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, marketId });
         }
     }
     /**
@@ -65,8 +65,8 @@ class Accounts {
                     walletAddress,
                 });
             }
-            // Get positions using the account ID
-            const positions = await this.getPositions(account.accountId);
+            // Get positions using the wallet address
+            const positions = await this.getPositions(walletAddress);
             // Calculate totals
             const totalUnrealizedPnl = positions
                 .reduce((sum, pos) => {
