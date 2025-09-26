@@ -46,26 +46,6 @@ export class Accounts {
     }
   }
 
-  /**
-   * Gets account by account ID
-   */
-  async getAccountById(accountId: string): Promise<IAccountAPIResponse | null> {
-    try {
-      const response = await this.httpClient.get<IAccountAPIResponse[]>(
-        `accounts?accountId=${accountId}&chainIds=${this.chainId}`
-      );
-
-      const account = response.find((item) => item.chainId === this.chainId);
-      return account || null;
-    } catch (error) {
-      throw new AccountError(
-        `Failed to fetch account by ID ${accountId}: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        { accountId, chainId: this.chainId }
-      );
-    }
-  }
 
   /**
    * Gets all positions for a specific account
@@ -112,7 +92,7 @@ export class Accounts {
   /**
    * Gets account summary including positions and key metrics
    */
-  async getAccountSummary(accountId: string): Promise<{
+  async getAccountSummary(walletAddress: string): Promise<{
     account: IAccountAPIResponse;
     positions: IPosition[];
     totalPositions: number;
@@ -120,16 +100,17 @@ export class Accounts {
     totalRealizedPnl: string;
   }> {
     try {
-      const [account, positions] = await Promise.all([
-        this.getAccountById(accountId),
-        this.getPositions(accountId),
-      ]);
-
+      // Get account by wallet address
+      const account = await this.getAccount(walletAddress);
+      
       if (!account) {
-        throw new AccountError(`Account not found: ${accountId}`, {
-          accountId,
+        throw new AccountError(`Account not found for wallet: ${walletAddress}`, {
+          walletAddress,
         });
       }
+
+      // Get positions using the account ID
+      const positions = await this.getPositions(account.accountId);
 
       // Calculate totals
       const totalUnrealizedPnl = positions
@@ -159,7 +140,7 @@ export class Accounts {
         `Failed to fetch account summary: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        { accountId }
+        { walletAddress }
       );
     }
   }

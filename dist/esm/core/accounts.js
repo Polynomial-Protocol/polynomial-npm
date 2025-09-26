@@ -27,19 +27,6 @@ export class Accounts {
         }
     }
     /**
-     * Gets account by account ID
-     */
-    async getAccountById(accountId) {
-        try {
-            const response = await this.httpClient.get(`accounts?accountId=${accountId}&chainIds=${this.chainId}`);
-            const account = response.find((item) => item.chainId === this.chainId);
-            return account || null;
-        }
-        catch (error) {
-            throw new AccountError(`Failed to fetch account by ID ${accountId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, chainId: this.chainId });
-        }
-    }
-    /**
      * Gets all positions for a specific account
      */
     async getPositions(accountId) {
@@ -66,17 +53,17 @@ export class Accounts {
     /**
      * Gets account summary including positions and key metrics
      */
-    async getAccountSummary(accountId) {
+    async getAccountSummary(walletAddress) {
         try {
-            const [account, positions] = await Promise.all([
-                this.getAccountById(accountId),
-                this.getPositions(accountId),
-            ]);
+            // Get account by wallet address
+            const account = await this.getAccount(walletAddress);
             if (!account) {
-                throw new AccountError(`Account not found: ${accountId}`, {
-                    accountId,
+                throw new AccountError(`Account not found for wallet: ${walletAddress}`, {
+                    walletAddress,
                 });
             }
+            // Get positions using the account ID
+            const positions = await this.getPositions(account.accountId);
             // Calculate totals
             const totalUnrealizedPnl = positions
                 .reduce((sum, pos) => {
@@ -100,7 +87,7 @@ export class Accounts {
             if (error instanceof AccountError) {
                 throw error;
             }
-            throw new AccountError(`Failed to fetch account summary: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId });
+            throw new AccountError(`Failed to fetch account summary: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress });
         }
     }
     /**

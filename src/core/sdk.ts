@@ -214,15 +214,7 @@ export class PolynomialSDK {
       });
     }
 
-    const account = await this.accounts.getAccount(walletAddress);
-    if (!account) {
-      throw new ValidationError(
-        `No account found for wallet address: ${walletAddress}`,
-        { walletAddress }
-      );
-    }
-
-    return await this.accounts.getAccountSummary(account.accountId);
+    return await this.accounts.getAccountSummary(walletAddress);
   }
 
   /**

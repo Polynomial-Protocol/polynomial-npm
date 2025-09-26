@@ -12,10 +12,6 @@ export declare class Accounts {
      */
     getAccount(walletAddress: string): Promise<IAccountAPIResponse | null>;
     /**
-     * Gets account by account ID
-     */
-    getAccountById(accountId: string): Promise<IAccountAPIResponse | null>;
-    /**
      * Gets all positions for a specific account
      */
     getPositions(accountId: string): Promise<IPosition[]>;
@@ -26,7 +22,7 @@ export declare class Accounts {
     /**
      * Gets account summary including positions and key metrics
      */
-    getAccountSummary(accountId: string): Promise<{
+    getAccountSummary(walletAddress: string): Promise<{
         account: IAccountAPIResponse;
         positions: IPosition[];
         totalPositions: number;
