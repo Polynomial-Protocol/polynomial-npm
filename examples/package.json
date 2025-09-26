@@ -2,12 +2,10 @@
   "name": "polynomialfi-examples",
   "version": "1.0.0",
   "description": "Example usage of the Polynomial SDK (polynomialfi)",
-  "main": "basic-usage.js",
+  "main": "basic-usage.ts",
   "scripts": {
-    "start": "node basic-usage.js",
-    "start:ts": "npx ts-node -P ./tsconfig.json basic-usage.ts",
-    "dev": "nodemon basic-usage.js",
-    "dev:ts": "nodemon --exec \"npx ts-node -P ./tsconfig.json\" basic-usage.ts"
+    "start": "npx ts-node -P ./tsconfig.json basic-usage.ts",
+    "dev": "nodemon --exec \"npx ts-node -P ./tsconfig.json\" basic-usage.ts"
   },
   "keywords": [
     "polynomial",
