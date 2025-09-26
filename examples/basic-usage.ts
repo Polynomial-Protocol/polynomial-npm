@@ -17,13 +17,19 @@ const WALLET_ADDRESS = ""; // Your wallet address
 async function runExample(): Promise<void> {
   // Validate required configuration values
   if (!API_KEY) {
-    throw new Error("API_KEY is required - please update the API_KEY variable with your actual API key");
+    throw new Error(
+      "API_KEY is required - please update the API_KEY variable with your actual API key"
+    );
   }
   if (!SESSION_KEY) {
-    throw new Error("SESSION_KEY is required - please update the SESSION_KEY variable with your actual session key");
+    throw new Error(
+      "SESSION_KEY is required - please update the SESSION_KEY variable with your actual session key"
+    );
   }
   if (!WALLET_ADDRESS) {
-    throw new Error("WALLET_ADDRESS is required - please update the WALLET_ADDRESS variable with your actual wallet address");
+    throw new Error(
+      "WALLET_ADDRESS is required - please update the WALLET_ADDRESS variable with your actual wallet address"
+    );
   }
 
   try {
