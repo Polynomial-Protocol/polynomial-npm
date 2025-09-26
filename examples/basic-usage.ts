@@ -9,7 +9,7 @@
  * 5. Error handling
  */
 
-import { PolynomialSDK, parseUnits } from "../src";
+import { PolynomialSDK, parseUnits } from "polynomialfi";
 
 // Configuration - replace with your actual values
 const API_KEY = process.env.POLYNOMIAL_API_KEY || "<YOUR_API_KEY>";

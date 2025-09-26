@@ -9,7 +9,7 @@
  * 5. Error handling
  */
 
-const { PolynomialSDK, parseUnits } = require("../dist/cjs");
+const { PolynomialSDK, parseUnits } = require("polynomialfi");
 
 // Configuration - replace with your actual values
 const API_KEY = process.env.POLYNOMIAL_API_KEY || "<YOUR_API_KEY>";
