@@ -46,7 +46,6 @@ export class Accounts {
     }
   }
 
-
   /**
    * Gets all positions for a specific account
    */
@@ -102,11 +101,14 @@ export class Accounts {
     try {
       // Get account by wallet address
       const account = await this.getAccount(walletAddress);
-      
+
       if (!account) {
-        throw new AccountError(`Account not found for wallet: ${walletAddress}`, {
-          walletAddress,
-        });
+        throw new AccountError(
+          `Account not found for wallet: ${walletAddress}`,
+          {
+            walletAddress,
+          }
+        );
       }
 
       // Get positions using the account ID
