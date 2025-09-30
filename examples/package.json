@@ -23,7 +23,7 @@
   "author": "Polynomial Protocol",
   "license": "MIT",
   "dependencies": {
-    "polynomialfi": "^1.0.6"
+    "polynomialfi": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",

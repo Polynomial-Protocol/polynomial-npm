@@ -47,30 +47,59 @@ async function runExample(): Promise<void> {
     const markets = await sdk.markets.getMarkets();
     console.log(`📊 Found ${markets.length} markets`);
 
-    // Step 2: Get ETH market details
-    const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
-    if (!ethMarket) {
-      throw new Error("ETH market not found");
+    // Debug: Show available markets
+    console.log("Available markets:");
+    markets.forEach((market) => {
+      console.log(
+        `- ${market.symbol}: ID=${market.marketId}, Price=$${market.price}`
+      );
+    });
+
+    // Step 2: Get ETH market details (with fallback)
+    let selectedMarket = await sdk.markets.getMarketBySymbol("ETH");
+
+    if (!selectedMarket && markets.length > 0) {
+      // Fallback to first available market if ETH not found
+      const firstMarket = markets[0];
+      if (firstMarket) {
+        selectedMarket = firstMarket;
+        console.log(
+          `⚠️  ETH market not found, using ${selectedMarket.symbol} instead`
+        );
+      }
     }
-    console.log(`💰 ETH Price: $${ethMarket.price}`);
+
+    if (!selectedMarket) {
+      throw new Error("No markets available");
+    }
+
+    console.log(
+      `💰 Selected Market - ${selectedMarket.symbol}: ID=${selectedMarket.marketId}, Price=$${selectedMarket.price}`
+    );
 
     // Step 3: Get account summary using stored credentials (no parameters needed)
     const accountSummary = await sdk.accounts.getMyAccountSummary();
     console.log("Account fetched", accountSummary);
 
     // Step 4: Create a simple market order using stored credentials
-    console.log("📝 Creating market order for 0.001 ETH...");
-    const tradeSize = parseUnits("0.001"); // 0.001 ETH
+    console.log(
+      `📝 Creating market order for 0.001 ${selectedMarket.symbol}...`
+    );
+    const tradeSize = parseUnits("0.001"); // 0.001 of selected asset
 
     // Option 1: Use the simple createOrder method (recommended)
-    const orderResult = await sdk.createOrder(ethMarket.marketId, tradeSize, {
-      isLong: true, // Long position
-      slippagePercentage: 10n, // 10% slippage
-    });
+    const orderResult = await sdk.createOrder(
+      selectedMarket.marketId,
+      tradeSize,
+      {
+        isLong: true, // Long position
+        slippagePercentage: 10n, // 10% slippage
+      }
+    );
 
     // Option 2: Use the direct orders module method if you need more control
     // const orderResult = await sdk.orders.createLongOrder(
-    //   ethMarket.marketId,
+    //   selectedMarket.marketId,
     //   tradeSize,
     //   acceptablePrice
     // );

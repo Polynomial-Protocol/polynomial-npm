@@ -40,7 +40,7 @@ export declare class Accounts {
      */
     getAllAccountsForWallet(walletAddress: string): Promise<IAccountAPIResponse[]>;
     /**
-     * Gets all positions for the stored account using derived account ID
+     * Gets all positions for the stored account using wallet address
      */
     getMyPositions(): Promise<IPosition[]>;
     /**

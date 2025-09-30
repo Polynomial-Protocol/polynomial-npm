@@ -130,16 +130,15 @@ class Accounts {
         }
     }
     /**
-     * Gets all positions for the stored account using derived account ID
+     * Gets all positions for the stored account using wallet address
      */
     async getMyPositions() {
-        const accountId = this.getAccountId();
         try {
-            const response = await this.httpClient.get(`positions/v2?accountId=${accountId}&chainId=${this.chainId}`);
+            const response = await this.httpClient.get(`positions/v2?offset=0&limit=0&owner=${this.walletAddress}&ownershipType=SuperOwner&chainIds=${this.chainId}`);
             return response.positions || [];
         }
         catch (error) {
-            throw new errors_1.AccountError(`Failed to fetch positions for account ${accountId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, chainId: this.chainId });
+            throw new errors_1.AccountError(`Failed to fetch positions for wallet ${this.walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress: this.walletAddress, chainId: this.chainId });
         }
     }
     /**
