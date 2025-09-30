@@ -22,10 +22,18 @@ class Orders {
     async getMarketPrice(marketId) {
         try {
             const response = await this.httpClient.get(`markets?chainId=${this.networkConfig.chainId}`);
-            const market = response.markets?.find((m) => m.marketId === marketId);
+            const chainData = response.find((item) => item.chainId === this.networkConfig.chainId);
+            if (!chainData) {
+                throw new errors_1.ValidationError(`Chain data not found for chain ID ${this.networkConfig.chainId}`, {
+                    chainId: this.networkConfig.chainId,
+                });
+            }
+            const market = chainData.markets?.find((m) => m.marketId === marketId);
             if (!market) {
+                console.log(JSON.stringify(chainData.markets));
                 throw new errors_1.ValidationError(`Market not found: ${marketId}`, {
                     marketId,
+                    markets: chainData.markets,
                 });
             }
             // Convert market price to bigint (assuming price is in standard format)
@@ -147,6 +155,7 @@ class Orders {
                 eoa: this.walletAddress,
                 reduceOnly,
             };
+            console.log(JSON.stringify(orderToSign));
             // Sign the order
             const signature = await this.signMarketOrder(this.sessionKey, orderToSign);
             // Create the market order request

@@ -48,12 +48,27 @@ export class Orders {
         `markets?chainId=${this.networkConfig.chainId}`
       );
 
-      const market = response.markets?.find(
+      const chainData = response.find(
+        (item: any) => item.chainId === this.networkConfig.chainId
+      );
+
+      if (!chainData) {
+        throw new ValidationError(
+          `Chain data not found for chain ID ${this.networkConfig.chainId}`,
+          {
+            chainId: this.networkConfig.chainId,
+          }
+        );
+      }
+
+      const market = chainData.markets?.find(
         (m: any) => m.marketId === marketId
       );
       if (!market) {
+        console.log(JSON.stringify(chainData.markets));
         throw new ValidationError(`Market not found: ${marketId}`, {
           marketId,
+          markets: chainData.markets,
         });
       }
 
@@ -236,6 +251,8 @@ export class Orders {
         eoa: this.walletAddress,
         reduceOnly,
       };
+
+      console.log(JSON.stringify(orderToSign));
 
       // Sign the order
       const signature = await this.signMarketOrder(

@@ -9,7 +9,14 @@
     "debug": "TS_NODE_PROJECT=./tsconfig.json node --inspect-brk -r ts-node/register basic-usage.ts",
     "debug:watch": "TS_NODE_PROJECT=./tsconfig.json nodemon --exec \"node --inspect-brk -r ts-node/register\" basic-usage.ts",
     "refresh": "rm -rf node_modules package-lock.json && npm install polynomialfi@latest && npm install",
-    "clean-install": "npm run refresh"
+    "clean-install": "npm run refresh",
+    "use-local": "npm unlink polynomialfi 2>/dev/null || true && cd .. && npm link && cd examples && npm link polynomialfi",
+    "use-remote": "npm unlink polynomialfi 2>/dev/null || true && npm install polynomialfi@latest",
+    "use-file": "npm uninstall polynomialfi && npm install file:../",
+    "link-local": "npm run use-local",
+    "link-remote": "npm run use-remote",
+    "build-and-link": "cd .. && npm run build && cd examples && npm run use-local",
+    "check-version": "node check-version.js"
   },
   "keywords": [
     "polynomial",
@@ -22,9 +29,6 @@
   ],
   "author": "Polynomial Protocol",
   "license": "MIT",
-  "dependencies": {
-    "polynomialfi": "^1.0.7"
-  },
   "devDependencies": {
     "@types/node": "^22.15.30",
     "nodemon": "^3.1.10",
