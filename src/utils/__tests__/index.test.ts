@@ -162,7 +162,7 @@ describe("Utility Functions", () => {
         // Small delay to ensure different timestamps
         await new Promise((resolve) => setTimeout(resolve, 1));
       }
-      
+
       // Check that we have at least some unique values
       const uniqueNonces = new Set(nonces);
       expect(uniqueNonces.size).toBeGreaterThan(1);
