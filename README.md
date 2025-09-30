@@ -52,7 +52,7 @@ The SDK is built with a modular architecture:
 ```
 polynomial-sdk/
 ├── 🎯 PolynomialSDK     # Main SDK class
-├── 📊 Markets           # Market data & trade simulation
+├── 📊 Markets           # Market data & information
 ├── 👤 Accounts          # Account & position management
 ├── 📝 Orders            # Order creation & signing
 ├── 🌐 HttpClient        # HTTP communication layer
@@ -84,68 +84,38 @@ pnpm add polynomialfi
 ```typescript
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
-// 1. Initialize the SDK
+// Initialize the SDK
 const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
-  chainId: 8008, // Polynomial mainnet
 });
 
-// 2. Get market data
-const markets = await sdk.markets.getMarkets();
+// Get ETH market data
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
 console.log(`ETH Price: $${ethMarket?.price}`);
 
-// 3. Get account information
-const accountSummary = await sdk.getAccountSummary("your-wallet-address");
-console.log(`Total Positions: ${accountSummary.totalPositions}`);
-
-// 4. Simulate a trade
-const simulation = await sdk.markets.simulateTrade({
-  accountId: accountSummary.account.accountId,
-  marketId: ethMarket!.marketId,
-  sizeDelta: parseUnits("0.1"), // 0.1 ETH long
-});
-
-// 5. Create a market order (if simulation is feasible)
-if (simulation.feasible) {
-  const orderResult = await sdk.createMarketOrderWithSimulation(
-    "your-session-key",
-    "your-wallet-address",
-    "ETH",
-    parseUnits("0.1"), // 0.1 ETH
-    true, // Long position
-    10n // 10% max slippage
-  );
-  console.log("Order submitted:", orderResult);
-}
+// Create a simple order (only marketId and size required!)
+const result = await sdk.createOrder(
+  sessionKey,
+  walletAddress,
+  ethMarket.marketId,
+  parseUnits("0.1") // 0.1 ETH
+);
 ```
 
 > **💡 Tip**: Check out the [examples directory](./examples/) for complete working examples!
 
 ## ⚙️ Configuration
 
-### Basic Configuration
-
-```typescript
-import { PolynomialSDK } from "polynomialfi";
-
-const sdk = PolynomialSDK.create({
-  apiKey: "your-api-key", // Required
-  chainId: 8008, // Optional, defaults to 8008 (Polynomial mainnet)
-  defaultSlippage: 10n, // Optional, defaults to 10n (10%)
-});
-```
-
-### Advanced Configuration
-
 ```typescript
 const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
+});
+
+// With custom options
+const sdk = PolynomialSDK.create({
+  apiKey: "your-api-key",
   chainId: 8008,
-  apiEndpoint: "https://custom-api.example.com",
-  orderbookEndpoint: "https://custom-orderbook.example.com/api",
-  relayerAddress: "0x...",
-  defaultSlippage: 5n,
+  defaultSlippage: 5n, // 5% slippage
 });
 ```
 
@@ -173,11 +143,7 @@ Creates a new SDK instance.
 **Example:**
 
 ```typescript
-const sdk = PolynomialSDK.create({
-  apiKey: "your-api-key",
-  chainId: 8008,
-  defaultSlippage: 5n, // 5% slippage
-});
+const sdk = PolynomialSDK.create({ apiKey: "your-api-key" });
 ```
 
 ### 📊 Markets Module
@@ -194,10 +160,7 @@ Fetches all available markets with optional filtering.
 **Returns:** `Promise<IMarkets[]>`
 
 ```typescript
-// Get all markets
 const markets = await sdk.markets.getMarkets();
-
-// Filter by symbol
 const ethMarkets = await sdk.markets.getMarkets({ symbol: "ETH" });
 ```
 
@@ -213,33 +176,7 @@ Gets a specific market by symbol.
 
 ```typescript
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
-if (ethMarket) {
-  console.log(`ETH Price: $${ethMarket.price}`);
-}
-```
-
-#### `sdk.markets.simulateTrade(params)`
-
-Simulates a trade before execution to preview outcomes.
-
-**Parameters:**
-
-- `accountId` - Account ID
-- `marketId` - Market ID
-- `sizeDelta` - Position size change (positive for long, negative for short)
-
-**Returns:** `Promise<IPostTradeDetails>`
-
-```typescript
-const simulation = await sdk.markets.simulateTrade({
-  accountId: "account-id",
-  marketId: "market-id",
-  sizeDelta: parseUnits("0.1"), // 0.1 ETH long
-});
-
-console.log(`Fill Price: $${simulation.fillPrice}`);
-console.log(`Total Fees: $${simulation.totalFees}`);
-console.log(`Feasible: ${simulation.feasible}`);
+console.log(`ETH Price: $${ethMarket?.price}`);
 ```
 
 #### `sdk.markets.getMarketStats(marketId)`
@@ -250,7 +187,6 @@ Gets detailed statistics for a specific market.
 
 ```typescript
 const stats = await sdk.markets.getMarketStats("market-id");
-console.log(`24h Volume: $${stats.tradesVolume24h}`);
 ```
 
 ### 👤 Accounts Module
@@ -266,12 +202,8 @@ Gets account information for a wallet address.
 **Returns:** `Promise<IAccountAPIResponse | null>`
 
 ```typescript
-const account = await sdk.accounts.getAccount(
-  "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7"
-);
-if (account) {
-  console.log(`Account ID: ${account.accountId}`);
-}
+const account = await sdk.accounts.getAccount("0x742d35...");
+console.log(`Account ID: ${account?.accountId}`);
 ```
 
 #### `sdk.accounts.getPositions(accountId)`
@@ -286,12 +218,7 @@ Gets all open positions for an account.
 
 ```typescript
 const positions = await sdk.accounts.getPositions("account-id");
-positions.forEach((position, index) => {
-  console.log(`Position ${index + 1}:`);
-  console.log(`  Market: ${position.marketId}`);
-  console.log(`  Size: ${position.size}`);
-  console.log(`  PnL: $${position.totalRealisedPnlUsd}`);
-});
+console.log(`Found ${positions.length} positions`);
 ```
 
 #### `sdk.accounts.getAccountSummary(accountId)`
@@ -307,7 +234,6 @@ Gets comprehensive account summary with positions and metrics.
 ```typescript
 const summary = await sdk.accounts.getAccountSummary("account-id");
 console.log(`Total Positions: ${summary.totalPositions}`);
-console.log(`Total PnL: $${summary.totalRealizedPnl}`);
 ```
 
 #### `sdk.accounts.getPositionByMarket(accountId, marketId)`
@@ -319,7 +245,7 @@ Gets a specific position for a market.
 ```typescript
 const position = await sdk.accounts.getPositionByMarket(
   "account-id",
-  "eth-market-id"
+  "market-id"
 );
 ```
 
@@ -340,77 +266,105 @@ Creates, signs, and submits a market order.
 
 ```typescript
 const result = await sdk.orders.createMarketOrder(
-  "0x1234...", // session key
-  "0x742d...", // wallet address
-  "account-id",
+  sessionKey,
+  walletAddress,
+  accountId,
   {
-    marketId: "eth-market-id",
-    size: parseUnits("0.1"), // 0.1 ETH
-    isLong: true, // Long position
-    acceptablePrice: parseUnits("2000"), // Max $2000
+    marketId: "market-id",
+    size: parseUnits("0.1"),
+    isLong: true,
+    acceptablePrice: parseUnits("2000"),
   }
 );
 ```
 
 #### `sdk.orders.createLongOrder(...)`
 
-Convenience method for creating long positions.
+Convenience method for creating long positions. Acceptable price is now optional and will be calculated automatically if not provided.
 
 ```typescript
+// With automatic price calculation
 const result = await sdk.orders.createLongOrder(
   sessionKey,
   walletAddress,
   accountId,
-  "eth-market-id",
-  parseUnits("0.1"), // size
-  parseUnits("2000") // acceptable price
+  "market-id",
+  parseUnits("0.1")
+);
+
+// With custom acceptable price
+const result = await sdk.orders.createLongOrder(
+  sessionKey,
+  walletAddress,
+  accountId,
+  "market-id",
+  parseUnits("0.1"),
+  parseUnits("2000")
 );
 ```
 
 #### `sdk.orders.createShortOrder(...)`
 
-Convenience method for creating short positions.
+Convenience method for creating short positions. Acceptable price is now optional and will be calculated automatically if not provided.
 
 ```typescript
+// With automatic price calculation
 const result = await sdk.orders.createShortOrder(
   sessionKey,
   walletAddress,
   accountId,
-  "eth-market-id",
-  parseUnits("0.1"), // size
-  parseUnits("1800") // acceptable price
+  "market-id",
+  parseUnits("0.1")
 );
 ```
 
 ### 🎯 Convenience Methods
 
-#### `sdk.createMarketOrderWithSimulation(...)`
+#### `sdk.createOrder(sessionKey, walletAddress, marketId, size, options?)`
 
-Creates a market order with automatic trade simulation and validation.
+Creates a market order with minimal parameters. Only `marketId` and `size` are required - everything else uses intelligent defaults.
 
 **Parameters:**
 
-- `sessionKey` - Private key for signing
+- `sessionKey` - Private key for signing orders
 - `walletAddress` - Wallet address
-- `marketSymbol` - Market symbol (e.g., "ETH")
+- `marketId` - Market ID to trade
 - `size` - Position size
-- `isLong` - Position direction
-- `maxSlippage` - Maximum slippage tolerance
+- `options` (optional) - Additional options:
+  - `isLong` - Position direction (default: `true`)
+  - `acceptablePrice` - Custom acceptable price (default: calculated from market price + slippage)
+  - `reduceOnly` - Reduce-only order (default: `false`)
+  - `slippagePercentage` - Custom slippage (default: uses SDK default)
 
-**Returns:** `Promise<{ simulation, orderResult }>`
+**Returns:** `Promise<OrderResult>`
+
+**Default Behavior:**
+
+- **Position Direction**: Defaults to long (`isLong: true`)
+- **Acceptable Price**: Automatically fetched from market data and calculated with slippage protection
+- **Slippage**: Uses SDK default (10%) or custom value
+- **Reduce Only**: Defaults to `false`
 
 ```typescript
-const result = await sdk.createMarketOrderWithSimulation(
-  "0x1234...", // session key
-  "0x742d...", // wallet address
-  "ETH",
-  parseUnits("0.1"), // 0.1 ETH
-  true, // Long position
-  15n // 15% max slippage
+// Minimal usage - only marketId and size required
+const result = await sdk.createOrder(
+  sessionKey,
+  walletAddress,
+  "market-id",
+  parseUnits("0.1")
 );
 
-console.log("Trade simulation:", result.simulation);
-console.log("Order result:", result.orderResult);
+// With custom options
+const result = await sdk.createOrder(
+  sessionKey,
+  walletAddress,
+  "market-id",
+  parseUnits("0.1"),
+  {
+    isLong: false, // Short position
+    slippagePercentage: 5n, // 5% slippage
+  }
+);
 ```
 
 #### `sdk.getAccountSummary(walletAddress)`
@@ -420,11 +374,8 @@ Gets comprehensive account summary by wallet address.
 **Returns:** `Promise<AccountSummary>`
 
 ```typescript
-const summary = await sdk.getAccountSummary(
-  "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7"
-);
+const summary = await sdk.getAccountSummary("0x742d35...");
 console.log(`Account: ${summary.account.accountId}`);
-console.log(`Positions: ${summary.totalPositions}`);
 ```
 
 #### `sdk.getMarketData(symbol?)`
@@ -432,10 +383,7 @@ console.log(`Positions: ${summary.totalPositions}`);
 Gets market data, optionally filtered by symbol.
 
 ```typescript
-// Get specific market
 const ethData = await sdk.getMarketData("ETH");
-
-// Get all markets
 const allMarkets = await sdk.getMarketData();
 ```
 
@@ -446,68 +394,31 @@ The SDK includes powerful utility functions for common operations:
 ### Unit Conversion
 
 ```typescript
-import { parseUnits, formatUnits } from "polynomial-sdk";
+import { parseUnits, formatUnits } from "polynomialfi";
 
-// Convert human-readable values to base units (18 decimals)
 const amount = parseUnits("1.5"); // 1.5 ETH -> 1500000000000000000n
-const custom = parseUnits("100", 6); // 100 USDC -> 100000000n (6 decimals)
-
-// Convert base units to human-readable values
-const formatted = formatUnits(1500000000000000000n); // -> "1.5"
-const usdcFormatted = formatUnits(100000000n, 6); // -> "100"
+const formatted = formatUnits(amount); // -> "1.5"
 ```
 
 ### Price Calculations
 
 ```typescript
-import {
-  calculateAcceptablePrice,
-  formatPrice,
-  calculatePositionValue,
-} from "polynomial-sdk";
+import { calculateAcceptablePrice } from "polynomialfi";
 
-// Calculate acceptable price with slippage protection
 const acceptablePrice = calculateAcceptablePrice(
-  parseUnits("2000"), // Market price: $2000
-  5n, // 5% slippage tolerance
-  true // Long position (adds slippage)
+  parseUnits("2000"), // Market price
+  5n, // 5% slippage
+  true // Long position
 );
-// Result: $2100 (2000 + 5%)
-
-// Format prices for display
-const displayPrice = formatPrice(parseUnits("2000.1234"), 18, 2); // -> "2000.12"
-
-// Calculate position USD value
-const positionValue = calculatePositionValue(
-  parseUnits("0.5"), // 0.5 ETH position
-  parseUnits("2000") // $2000/ETH price
-); // -> "1000.00"
 ```
 
 ### Validation & Utilities
 
 ```typescript
-import {
-  isValidAddress,
-  isValidPrivateKey,
-  generateNonce,
-  percentageToBasisPoints,
-} from "polynomial-sdk";
+import { isValidAddress, generateNonce } from "polynomialfi";
 
-// Address validation
-const validAddress = isValidAddress(
-  "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7"
-); // true
-const invalidAddress = isValidAddress("invalid-address"); // false
-
-// Private key validation
-const validKey = isValidPrivateKey("0x1234..."); // true/false
-
-// Generate unique nonces for orders
-const nonce = generateNonce(); // "1640995200000"
-
-// Convert percentages to basis points
-const basisPoints = percentageToBasisPoints(1.5); // 150 (1.5% = 150 bp)
+const isValid = isValidAddress("0x742d35...");
+const nonce = generateNonce();
 ```
 
 ## ❌ Error Handling
@@ -530,38 +441,22 @@ The SDK provides comprehensive, typed error handling for robust applications:
 ### Error Handling Patterns
 
 ```typescript
-import {
-  PolynomialSDKError,
-  APIError,
-  ValidationError,
-  OrderError,
-  isPolynomialSDKError,
-} from "polynomial-sdk";
+import { APIError, ValidationError } from "polynomialfi";
 
 try {
-  const result = await sdk.createMarketOrderWithSimulation(
+  const result = await sdk.orders.createLongOrder(
     sessionKey,
     walletAddress,
-    "ETH",
+    accountId,
+    "market-id",
     parseUnits("0.1"),
-    true,
-    10n
+    parseUnits("2000")
   );
 } catch (error) {
-  // Type-safe error handling
   if (error instanceof APIError) {
-    console.error(`API Error [${error.status}]:`, error.message);
-    console.error("Response:", error.response);
+    console.error("API Error:", error.message);
   } else if (error instanceof ValidationError) {
     console.error("Validation Error:", error.message);
-    console.error("Context:", error.context);
-  } else if (error instanceof OrderError) {
-    console.error("Order Error:", error.message);
-    // Maybe retry or show user-friendly message
-  } else if (isPolynomialSDKError(error)) {
-    console.error(`SDK Error [${error.code}]:`, error.message);
-  } else {
-    console.error("Unexpected error:", error);
   }
 }
 ```
@@ -575,9 +470,8 @@ try {
   await sdk.accounts.getAccount("invalid-address");
 } catch (error) {
   if (error instanceof ValidationError) {
-    console.log(error.message); // "Invalid wallet address format"
-    console.log(error.context); // { walletAddress: "invalid-address" }
-    console.log(error.code); // "VALIDATION_ERROR"
+    console.log(error.message);
+    console.log(error.context);
   }
 }
 ```
@@ -588,60 +482,40 @@ The SDK includes comprehensive examples to get you started quickly:
 
 ### 🚀 [Basic Usage](./examples/basic-usage.ts)
 
-Complete example showing SDK initialization, market data fetching, account management, and order creation.
+Complete example showing SDK initialization, market data fetching, and account management.
 
 ```typescript
-// Key highlights from basic usage example:
 const sdk = PolynomialSDK.create({ apiKey: "your-key" });
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
 const accountSummary = await sdk.getAccountSummary(walletAddress);
-const simulation = await sdk.markets.simulateTrade({...});
 ```
 
-### 🏗️ Complete Trading Bot Example
+### 🏗️ Simple Trading Example
 
 ```typescript
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
-class TradingBot {
-  private sdk: PolynomialSDK;
+const sdk = PolynomialSDK.create({ apiKey: "your-key" });
 
-  constructor(apiKey: string) {
-    this.sdk = PolynomialSDK.create({
-      apiKey,
-      defaultSlippage: 5n, // 5% slippage tolerance
-    });
-  }
+// Get market data
+const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
 
-  async executeStrategy() {
-    // Get market data
-    const ethMarket = await this.sdk.markets.getMarketBySymbol("ETH");
-    if (!ethMarket) throw new Error("ETH market not found");
+// Create a simple order - only marketId and size required!
+const result = await sdk.createOrder(
+  sessionKey,
+  walletAddress,
+  ethMarket.marketId,
+  parseUnits("0.1") // 0.1 ETH long position (default)
+);
 
-    // Check account
-    const summary = await this.sdk.getAccountSummary(WALLET_ADDRESS);
-    console.log(`Account has ${summary.totalPositions} positions`);
-
-    // Execute trade based on your strategy
-    if (this.shouldTrade(ethMarket)) {
-      const result = await this.sdk.createMarketOrderWithSimulation(
-        SESSION_KEY,
-        WALLET_ADDRESS,
-        "ETH",
-        parseUnits("0.1"),
-        true, // Long
-        10n // 10% slippage
-      );
-
-      console.log("Trade executed:", result.orderResult);
-    }
-  }
-
-  private shouldTrade(market: IMarkets): boolean {
-    // Your trading logic here
-    return market.price > 2000 && parseFloat(market.currentFundingRate) < 0.01;
-  }
-}
+// Or create a short position with custom slippage
+const shortResult = await sdk.createOrder(
+  sessionKey,
+  walletAddress,
+  ethMarket.marketId,
+  parseUnits("0.1"),
+  { isLong: false, slippagePercentage: 5n }
+);
 ```
 
 ## 🛠️ Development

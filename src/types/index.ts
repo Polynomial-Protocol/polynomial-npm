@@ -188,9 +188,10 @@ export interface IPostTradeDetails {
 export interface OrderParams {
   marketId: string;
   size: bigint;
-  isLong: boolean;
+  isLong?: boolean;
   acceptablePrice?: bigint;
   reduceOnly?: boolean;
+  slippagePercentage?: bigint;
 }
 
 /**

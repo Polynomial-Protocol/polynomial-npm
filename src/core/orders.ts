@@ -9,6 +9,7 @@ import {
   generateNonce,
   getWeekFromNowTimestamp,
   calculateAcceptablePrice,
+  parseUnits,
 } from "../utils";
 
 /**
@@ -27,6 +28,36 @@ export class Orders {
     this.httpClient = httpClient;
     this.orderbookClient = orderbookClient;
     this.networkConfig = networkConfig;
+  }
+
+  /**
+   * Fetches current market price for a given market ID
+   */
+  private async getMarketPrice(marketId: string): Promise<bigint> {
+    try {
+      const response = await this.httpClient.get<any>(
+        `markets?chainId=${this.networkConfig.chainId}`
+      );
+
+      const market = response.markets?.find(
+        (m: any) => m.marketId === marketId
+      );
+      if (!market) {
+        throw new ValidationError(`Market not found: ${marketId}`, {
+          marketId,
+        });
+      }
+
+      // Convert market price to bigint (assuming price is in standard format)
+      return parseUnits(market.price.toString());
+    } catch (error) {
+      throw new OrderError(
+        `Failed to fetch market price for ${marketId}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { marketId }
+      );
+    }
   }
 
   /**
@@ -168,20 +199,27 @@ export class Orders {
     const {
       marketId,
       size,
-      isLong,
+      isLong = true, // Default to long position
       acceptablePrice,
       reduceOnly = false,
+      slippagePercentage,
     } = params;
 
     try {
       // Calculate acceptable price if not provided
       let finalAcceptablePrice = acceptablePrice;
       if (!finalAcceptablePrice) {
-        // For market orders, we need to get current market price
-        // This is a simplified approach - in practice, you might want to get this from market data
-        throw new ValidationError(
-          "Acceptable price must be provided for market orders",
-          { marketId }
+        // Fetch current market price
+        const marketPrice = await this.getMarketPrice(marketId);
+
+        // Use provided slippage or default
+        const slippage = slippagePercentage || defaultSlippage;
+
+        // Calculate acceptable price with slippage protection
+        finalAcceptablePrice = calculateAcceptablePrice(
+          marketPrice,
+          slippage,
+          isLong
         );
       }
 
@@ -245,6 +283,30 @@ export class Orders {
   }
 
   /**
+   * Creates a simple market order with minimal parameters
+   * All other values will be calculated automatically or use defaults
+   */
+  async createOrder(
+    sessionKey: string,
+    walletAddress: string,
+    accountId: string,
+    marketId: string,
+    size: bigint,
+    options?: {
+      isLong?: boolean;
+      acceptablePrice?: bigint;
+      reduceOnly?: boolean;
+      slippagePercentage?: bigint;
+    }
+  ): Promise<any> {
+    return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+      marketId,
+      size,
+      ...options,
+    });
+  }
+
+  /**
    * Creates a long position market order
    */
   async createLongOrder(
@@ -253,7 +315,7 @@ export class Orders {
     accountId: string,
     marketId: string,
     size: bigint,
-    acceptablePrice: bigint,
+    acceptablePrice?: bigint,
     reduceOnly: boolean = false
   ): Promise<any> {
     return this.createMarketOrder(sessionKey, walletAddress, accountId, {
@@ -274,7 +336,7 @@ export class Orders {
     accountId: string,
     marketId: string,
     size: bigint,
-    acceptablePrice: bigint,
+    acceptablePrice?: bigint,
     reduceOnly: boolean = false
   ): Promise<any> {
     return this.createMarketOrder(sessionKey, walletAddress, accountId, {
