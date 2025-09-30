@@ -7,14 +7,9 @@ import { SDKConfig, NETWORKS, NetworkConfig } from "../config";
 import { isValidAddress } from "../utils";
 
 /**
- * Internal SDK config type that keeps optional fields optional
+ * Internal SDK config type - all fields are required
  */
-type InternalSDKConfig = Required<
-  Omit<SDKConfig, "walletAddress" | "sessionKey">
-> & {
-  walletAddress?: string;
-  sessionKey?: string;
-};
+type InternalSDKConfig = Required<SDKConfig>;
 
 /**
  * Main Polynomial SDK class
@@ -24,8 +19,8 @@ export class PolynomialSDK {
   private readonly networkConfig: NetworkConfig;
   private readonly httpClient: HttpClient;
   private readonly orderbookClient: HttpClient;
-  private readonly walletAddress?: string;
-  private readonly sessionKey?: string;
+  private readonly walletAddress: string;
+  private readonly sessionKey: string;
 
   // Module instances
   public readonly markets: Markets;
@@ -40,8 +35,20 @@ export class PolynomialSDK {
       });
     }
 
-    // Validate wallet address if provided
-    if (config.walletAddress && !isValidAddress(config.walletAddress)) {
+    if (!config.walletAddress) {
+      throw new ConfigurationError("Wallet address is required for SDK initialization", {
+        providedConfig: { ...config, apiKey: "REDACTED", sessionKey: "REDACTED" },
+      });
+    }
+
+    if (!config.sessionKey) {
+      throw new ConfigurationError("Session key is required for SDK initialization", {
+        providedConfig: { ...config, apiKey: "REDACTED", sessionKey: "REDACTED" },
+      });
+    }
+
+    // Validate wallet address format
+    if (!isValidAddress(config.walletAddress)) {
       throw new ValidationError("Invalid wallet address format", {
         walletAddress: config.walletAddress,
       });
@@ -123,23 +130,6 @@ export class PolynomialSDK {
     return { ...this.networkConfig };
   }
 
-  /**
-   * Validates that wallet address and session key are available for order operations
-   */
-  private validateAuthentication(): void {
-    if (!this.walletAddress) {
-      throw new ValidationError(
-        "Wallet address is required for order operations. Please provide walletAddress when creating the SDK instance.",
-        { operation: "order_operation" }
-      );
-    }
-    if (!this.sessionKey) {
-      throw new ValidationError(
-        "Session key is required for order operations. Please provide sessionKey when creating the SDK instance.",
-        { operation: "order_operation" }
-      );
-    }
-  }
 
   /**
    * Updates the API key
@@ -156,10 +146,9 @@ export class PolynomialSDK {
   /**
    * Simple convenience method to create an order with minimal parameters
    * Only marketId and size are required, everything else uses sensible defaults
+   * Uses the sessionKey and walletAddress provided during SDK initialization
    */
   async createOrder(
-    sessionKey: string,
-    walletAddress: string,
     marketId: string,
     size: bigint,
     options?: {
@@ -169,27 +158,20 @@ export class PolynomialSDK {
       slippagePercentage?: bigint;
     }
   ): Promise<any> {
-    // Validate inputs
-    if (!isValidAddress(walletAddress)) {
-      throw new ValidationError("Invalid wallet address format", {
-        walletAddress,
-      });
-    }
-
     try {
-      // Get account
-      const account = await this.accounts.getAccount(walletAddress);
+      // Get account using stored wallet address
+      const account = await this.accounts.getAccount(this.walletAddress);
       if (!account) {
         throw new ValidationError(
-          `No account found for wallet address: ${walletAddress}`,
-          { walletAddress }
+          `No account found for wallet address: ${this.walletAddress}`,
+          { walletAddress: this.walletAddress }
         );
       }
 
-      // Create the order using the Orders module
+      // Create the order using the Orders module with stored credentials
       return await this.orders.createOrder(
-        sessionKey,
-        walletAddress,
+        this.sessionKey,
+        this.walletAddress,
         account.accountId,
         marketId,
         size,
@@ -203,110 +185,26 @@ export class PolynomialSDK {
         `Failed to create order: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        { marketId, size: size.toString(), walletAddress }
+        { marketId, size: size.toString(), walletAddress: this.walletAddress }
       );
     }
   }
 
-  /**
-   * Convenience method to create a market order with trade simulation
-   */
-  async createMarketOrderWithSimulation(
-    marketSymbol: string,
-    size: bigint,
-    isLong: boolean,
-    maxSlippage?: bigint
-  ): Promise<{
-    simulation: any;
-    orderResult: any;
-  }> {
-    // Validate authentication
-    this.validateAuthentication();
-
-    try {
-      // Get account using stored wallet address
-      const account = await this.accounts.getAccount(this.walletAddress!);
-      if (!account) {
-        throw new ValidationError(
-          `No account found for wallet address: ${this.walletAddress}`,
-          { walletAddress: this.walletAddress }
-        );
-      }
-
-      // Get market
-      const market = await this.markets.getMarketBySymbol(marketSymbol);
-      if (!market) {
-        throw new ValidationError(
-          `Market not found for symbol: ${marketSymbol}`,
-          { marketSymbol }
-        );
-      }
-
-      // Simulate the trade
-      const simulation = await this.markets.simulateTrade({
-        accountId: account.accountId,
-        marketId: market.marketId,
-        sizeDelta: isLong ? size : -size,
-      });
-
-      // Check if trade is feasible
-      if (!simulation.feasible) {
-        throw new ValidationError(
-          `Trade not feasible: ${simulation.errorMsg || "Unknown reason"}`,
-          { simulation }
-        );
-      }
-
-      // Calculate acceptable price with slippage
-      const fillPrice = BigInt(simulation.fillPrice);
-      const slippage = maxSlippage || this.config.defaultSlippage;
-      const acceptablePrice = this.orders.calculateAcceptablePriceWithSlippage(
-        fillPrice,
-        slippage,
-        isLong
-      );
-
-      // Create the order using stored credentials
-      const orderResult = await this.orders.createMarketOrder(
-        this.sessionKey!,
-        this.walletAddress!,
-        account.accountId,
-        {
-          marketId: market.marketId,
-          size,
-          isLong,
-          acceptablePrice,
-        }
-      );
-
-      return {
-        simulation,
-        orderResult,
-      };
-    } catch (error) {
-      if (error instanceof ValidationError) {
-        throw error;
-      }
-      throw new ValidationError(
-        `Failed to create market order with simulation: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        { marketSymbol, size: size.toString(), isLong }
-      );
-    }
-  }
 
   /**
    * Convenience method to get account summary with positions
+   * Uses the walletAddress provided during SDK initialization
    */
-  async getAccountSummary(walletAddress: string) {
-    if (!isValidAddress(walletAddress)) {
-      throw new ValidationError("Invalid wallet address format", {
-        walletAddress,
-      });
+  async getAccountSummary() {
+    // Validate that wallet address is available
+    if (!this.walletAddress) {
+      throw new ValidationError(
+        "Wallet address is required for account operations. Please provide walletAddress when creating the SDK instance.",
+        { operation: "account_summary" }
+      );
     }
 
-    return await this.accounts.getAccountSummary(walletAddress);
+    return await this.accounts.getAccountSummary(this.walletAddress);
   }
 
   /**

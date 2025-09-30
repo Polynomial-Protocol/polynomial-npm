@@ -84,19 +84,19 @@ pnpm add polynomialfi
 ```typescript
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
-// Initialize the SDK
+// Initialize the SDK with all required credentials
 const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
+  sessionKey: "0x1234567890abcdef...", // Your private key for signing
+  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
 });
 
 // Get ETH market data
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
 console.log(`ETH Price: $${ethMarket?.price}`);
 
-// Create a simple order (only marketId and size required!)
+// Create a simple order - credentials are already stored in SDK
 const result = await sdk.createOrder(
-  sessionKey,
-  walletAddress,
   ethMarket.marketId,
   parseUnits("0.1") // 0.1 ETH
 );
@@ -106,16 +106,29 @@ const result = await sdk.createOrder(
 
 ## ⚙️ Configuration
 
+### Required Configuration
+
+All SDK instances require these credentials:
+
+```typescript
+const sdk = PolynomialSDK.create({
+  apiKey: "your-api-key",           // Required: API authentication
+  sessionKey: "0x1234...",          // Required: Private key for signing orders
+  walletAddress: "0x742d35...",     // Required: Your trading wallet address
+});
+```
+
+### Advanced Configuration
+
 ```typescript
 const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
-});
-
-// With custom options
-const sdk = PolynomialSDK.create({
-  apiKey: "your-api-key",
-  chainId: 8008,
-  defaultSlippage: 5n, // 5% slippage
+  sessionKey: "0x1234...",
+  walletAddress: "0x742d35...",
+  chainId: 8008,                    // Optional: Network chain ID
+  defaultSlippage: 5n,              // Optional: Default slippage (5%)
+  apiEndpoint: "https://...",       // Optional: Custom API endpoint
+  orderbookEndpoint: "https://...", // Optional: Custom orderbook endpoint
 });
 ```
 
@@ -129,21 +142,27 @@ Creates a new SDK instance.
 
 **Parameters:**
 
-| Parameter           | Type     | Required | Default           | Description                    |
-| ------------------- | -------- | -------- | ----------------- | ------------------------------ |
-| `apiKey`            | `string` | ✅       | -                 | Your API key from Polynomial   |
-| `chainId`           | `number` | ❌       | `8008`            | Network chain ID               |
-| `apiEndpoint`       | `string` | ❌       | Mainnet API       | Custom API endpoint            |
-| `orderbookEndpoint` | `string` | ❌       | Mainnet orderbook | Custom orderbook endpoint      |
-| `relayerAddress`    | `string` | ❌       | Default relayer   | Custom relayer address         |
-| `defaultSlippage`   | `bigint` | ❌       | `10n`             | Default slippage tolerance (%) |
+| Parameter           | Type     | Required | Default           | Description                                   |
+| ------------------- | -------- | -------- | ----------------- | --------------------------------------------- |
+| `apiKey`            | `string` | ✅       | -                 | Your API key from Polynomial                  |
+| `sessionKey`        | `string` | ✅       | -                 | Your private key for signing orders           |
+| `walletAddress`     | `string` | ✅       | -                 | Your trading wallet address                   |
+| `chainId`           | `number` | ❌       | `8008`            | Network chain ID                              |
+| `apiEndpoint`       | `string` | ❌       | Mainnet API       | Custom API endpoint                           |
+| `orderbookEndpoint` | `string` | ❌       | Mainnet orderbook | Custom orderbook endpoint                     |
+| `relayerAddress`    | `string` | ❌       | Default relayer   | Custom relayer address                        |
+| `defaultSlippage`   | `bigint` | ❌       | `10n`             | Default slippage tolerance (%)                |
 
 **Returns:** `PolynomialSDK` instance
 
 **Example:**
 
 ```typescript
-const sdk = PolynomialSDK.create({ apiKey: "your-api-key" });
+const sdk = PolynomialSDK.create({ 
+  apiKey: "your-api-key",
+  sessionKey: "0x1234567890abcdef...",
+  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7"
+});
 ```
 
 ### 📊 Markets Module
@@ -320,14 +339,12 @@ const result = await sdk.orders.createShortOrder(
 
 ### 🎯 Convenience Methods
 
-#### `sdk.createOrder(sessionKey, walletAddress, marketId, size, options?)`
+#### `sdk.createOrder(marketId, size, options?)`
 
-Creates a market order with minimal parameters. Only `marketId` and `size` are required - everything else uses intelligent defaults.
+Creates a market order with minimal parameters. Only `marketId` and `size` are required - everything else uses intelligent defaults. Uses the credentials provided during SDK initialization.
 
 **Parameters:**
 
-- `sessionKey` - Private key for signing orders
-- `walletAddress` - Wallet address
 - `marketId` - Market ID to trade
 - `size` - Position size
 - `options` (optional) - Additional options:
@@ -348,16 +365,12 @@ Creates a market order with minimal parameters. Only `marketId` and `size` are r
 ```typescript
 // Minimal usage - only marketId and size required
 const result = await sdk.createOrder(
-  sessionKey,
-  walletAddress,
   "market-id",
   parseUnits("0.1")
 );
 
 // With custom options
 const result = await sdk.createOrder(
-  sessionKey,
-  walletAddress,
   "market-id",
   parseUnits("0.1"),
   {
@@ -367,14 +380,14 @@ const result = await sdk.createOrder(
 );
 ```
 
-#### `sdk.getAccountSummary(walletAddress)`
+#### `sdk.getAccountSummary()`
 
-Gets comprehensive account summary by wallet address.
+Gets comprehensive account summary for the wallet address provided during SDK initialization.
 
 **Returns:** `Promise<AccountSummary>`
 
 ```typescript
-const summary = await sdk.getAccountSummary("0x742d35...");
+const summary = await sdk.getAccountSummary();
 console.log(`Account: ${summary.account.accountId}`);
 ```
 
@@ -495,23 +508,24 @@ const accountSummary = await sdk.getAccountSummary(walletAddress);
 ```typescript
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
-const sdk = PolynomialSDK.create({ apiKey: "your-key" });
+// Initialize SDK with all required credentials
+const sdk = PolynomialSDK.create({ 
+  apiKey: "your-key",
+  sessionKey: "0x1234567890abcdef...", // Your private key for signing
+  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
+});
 
 // Get market data
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
 
 // Create a simple order - only marketId and size required!
 const result = await sdk.createOrder(
-  sessionKey,
-  walletAddress,
   ethMarket.marketId,
   parseUnits("0.1") // 0.1 ETH long position (default)
 );
 
 // Or create a short position with custom slippage
 const shortResult = await sdk.createOrder(
-  sessionKey,
-  walletAddress,
   ethMarket.marketId,
   parseUnits("0.1"),
   { isLong: false, slippagePercentage: 5n }
@@ -558,17 +572,56 @@ npm run lint:fix
 npx tsc --noEmit
 ```
 
-## 🔐 API Key Setup
+## 🔐 Authentication & Credentials
 
-To use this SDK, you need the following credentials:
+The SDK requires all credentials to be provided during initialization. This ensures secure and consistent authentication throughout the session.
 
 ### Required Credentials
 
-| Credential         | Description                                 | How to Get                                                           |
-| ------------------ | ------------------------------------------- | -------------------------------------------------------------------- |
-| **API Key**        | Authentication for API access               | Contact Polynomial team via [Discord](https://discord.gg/polynomial) |
-| **Session Key**    | Private key for signing orders (Nitro Mode) | Generate or use existing private key                                 |
-| **Wallet Address** | Your primary trading wallet address         | Your Ethereum wallet address                                         |
+| Credential         | Description                              | Required For     | How to Get                                                           |
+| ------------------ | ---------------------------------------- | ---------------- | -------------------------------------------------------------------- |
+| **API Key**        | Authentication for API access            | All operations   | Contact Polynomial team via [Discord](https://discord.gg/polynomial) |
+| **Session Key**    | Private key for signing orders (EIP-712) | Order operations | Generate or use existing private key                                 |
+| **Wallet Address** | Your primary trading wallet address      | Order operations | Your Ethereum wallet address                                         |
+
+### Authentication Flow
+
+All credentials must be provided when creating the SDK instance:
+
+```typescript
+const sdk = PolynomialSDK.create({
+  apiKey: "your-api-key",           // Required for API access
+  sessionKey: "0x1234...",          // Required for signing orders
+  walletAddress: "0x742d35...",     // Required for trading operations
+});
+
+// All trading methods use the stored credentials
+const result = await sdk.createOrder(marketId, size);
+const summary = await sdk.getAccountSummary();
+```
+
+### Error Handling for Missing Credentials
+
+The SDK validates credentials during initialization and throws clear errors:
+
+```typescript
+try {
+  const sdk = PolynomialSDK.create({
+    apiKey: "your-api-key",
+    // Missing sessionKey and walletAddress
+  });
+} catch (error) {
+  // "Session key is required for SDK initialization"
+  // "Wallet address is required for SDK initialization"
+  console.error(error.message);
+}
+```
+
+### Credential Security
+
+- **Session Key**: Keep this private and secure. It's used to sign all order transactions
+- **API Key**: Treat as confidential. Required for all API access
+- **Wallet Address**: Public address of your trading account
 
 ### Environment Setup
 
@@ -583,6 +636,8 @@ WALLET_ADDRESS=0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7
 // In your application
 const sdk = PolynomialSDK.create({
   apiKey: process.env.POLYNOMIAL_API_KEY!,
+  sessionKey: process.env.SESSION_KEY!,
+  walletAddress: process.env.WALLET_ADDRESS!,
 });
 ```
 

@@ -154,27 +154,6 @@ export interface IAccountAPIResponse {
   chainId: number;
 }
 
-/**
- * ============================
- * Post-Order Simulation Output
- * ============================
- */
-
-/**
- * Response from `post-trade-details` API.
- * Provides simulated values before order execution.
- */
-export interface IPostTradeDetails {
-  totalFees: string;
-  fillPrice: string;
-  priceImpact: string;
-  newMarginUsage: number;
-  newHealthFactor: number;
-  feasible: boolean;
-  settlementReward: string;
-  liquidationPrice: string | null;
-  errorMsg: string | null;
-}
 
 /**
  * ============================
@@ -194,14 +173,6 @@ export interface OrderParams {
   slippagePercentage?: bigint;
 }
 
-/**
- * Trade simulation parameters
- */
-export interface TradeSimulationParams {
-  accountId: string;
-  marketId: string;
-  sizeDelta: bigint;
-}
 
 /**
  * Market data filters

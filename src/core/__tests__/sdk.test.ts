@@ -7,6 +7,9 @@ jest.mock("../http");
 describe("PolynomialSDK", () => {
   const validConfig = {
     apiKey: "test-api-key",
+    sessionKey:
+      "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+    walletAddress: "0x1234567890123456789012345678901234567890",
     chainId: 8008,
   };
 
@@ -21,12 +24,50 @@ describe("PolynomialSDK", () => {
 
     it("should throw ConfigurationError when API key is missing", () => {
       expect(() => {
-        new PolynomialSDK({ apiKey: "" });
+        new PolynomialSDK({ 
+          apiKey: "",
+          sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          walletAddress: "0x1234567890123456789012345678901234567890"
+        });
       }).toThrow(ConfigurationError);
     });
 
+    it("should throw ConfigurationError when session key is missing", () => {
+      expect(() => {
+        new PolynomialSDK({ 
+          apiKey: "test-key",
+          sessionKey: "",
+          walletAddress: "0x1234567890123456789012345678901234567890"
+        });
+      }).toThrow(ConfigurationError);
+    });
+
+    it("should throw ConfigurationError when wallet address is missing", () => {
+      expect(() => {
+        new PolynomialSDK({ 
+          apiKey: "test-key",
+          sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          walletAddress: ""
+        });
+      }).toThrow(ConfigurationError);
+    });
+
+    it("should throw ValidationError for invalid wallet address format", () => {
+      expect(() => {
+        new PolynomialSDK({ 
+          apiKey: "test-key",
+          sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          walletAddress: "invalid-address"
+        });
+      }).toThrow(ValidationError);
+    });
+
     it("should use default values for optional config", () => {
-      const sdk = new PolynomialSDK({ apiKey: "test-key" });
+      const sdk = new PolynomialSDK({ 
+        apiKey: "test-key",
+        sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        walletAddress: "0x1234567890123456789012345678901234567890"
+      });
       const config = sdk.getConfig();
 
       expect(config.chainId).toBe(8008);
@@ -39,6 +80,8 @@ describe("PolynomialSDK", () => {
     it("should override defaults with provided config", () => {
       const customConfig = {
         apiKey: "test-key",
+        sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        walletAddress: "0x1234567890123456789012345678901234567890",
         chainId: 1337,
         defaultSlippage: 5n,
         apiEndpoint: "https://custom-api.example.com",
@@ -147,7 +190,7 @@ describe("PolynomialSDK", () => {
       });
     });
 
-    it("should get account summary", async () => {
+    it("should get account summary using stored wallet address", async () => {
       jest.spyOn(sdk.accounts, "getAccountSummary").mockResolvedValue({
         account: {
           accountId: "123",
@@ -161,17 +204,10 @@ describe("PolynomialSDK", () => {
         totalRealizedPnl: "0.00",
       });
 
-      const summary = await sdk.getAccountSummary(
-        "0x1234567890123456789012345678901234567890"
-      );
+      const summary = await sdk.getAccountSummary();
       expect(summary).toBeDefined();
       expect(summary.account.accountId).toBe("123");
-    });
-
-    it("should throw ValidationError for invalid wallet address", async () => {
-      await expect(sdk.getAccountSummary("invalid-address")).rejects.toThrow(
-        ValidationError
-      );
+      expect(sdk.accounts.getAccountSummary).toHaveBeenCalledWith("0x1234567890123456789012345678901234567890");
     });
 
     it("should get market data for specific symbol", async () => {
@@ -231,6 +267,25 @@ describe("PolynomialSDK", () => {
       const markets = await sdk.getMarketData();
       expect(Array.isArray(markets)).toBe(true);
       expect(markets).toHaveLength(1);
+    });
+
+    it("should create order using stored credentials", async () => {
+      jest.spyOn(sdk.orders, "createOrder").mockResolvedValue({
+        orderId: "order-123",
+        status: "submitted"
+      });
+
+      const result = await sdk.createOrder("market-1", BigInt("1000000000000000000"));
+      expect(result).toBeDefined();
+      expect(result.orderId).toBe("order-123");
+      expect(sdk.orders.createOrder).toHaveBeenCalledWith(
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "0x1234567890123456789012345678901234567890",
+        "123",
+        "market-1",
+        BigInt("1000000000000000000"),
+        undefined
+      );
     });
   });
 });

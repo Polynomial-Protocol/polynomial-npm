@@ -3,9 +3,7 @@ import { MarketError } from "../errors";
 import {
   IMarketDataReceived,
   IMarkets,
-  IPostTradeDetails,
   MarketFilters,
-  TradeSimulationParams,
 } from "../types";
 
 /**
@@ -102,39 +100,6 @@ export class Markets {
     }
   }
 
-  /**
-   * Simulates the result of a market order before submitting it
-   */
-  async simulateTrade(
-    params: TradeSimulationParams
-  ): Promise<IPostTradeDetails> {
-    const { accountId, marketId, sizeDelta } = params;
-
-    try {
-      const response = await this.httpClient.post<IPostTradeDetails>(
-        `post-trade-details?chainId=${this.chainId}`,
-        {
-          accountId,
-          marketId,
-          sizeDelta: sizeDelta.toString(),
-        }
-      );
-
-      return response;
-    } catch (error) {
-      throw new MarketError(
-        `Failed to simulate trade: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`,
-        {
-          accountId,
-          marketId,
-          sizeDelta: sizeDelta.toString(),
-          chainId: this.chainId,
-        }
-      );
-    }
-  }
 
   /**
    * Gets market statistics for a specific market

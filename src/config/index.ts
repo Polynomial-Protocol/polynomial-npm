@@ -38,8 +38,8 @@ export interface SDKConfig {
   orderbookEndpoint?: string;
   relayerAddress?: string;
   defaultSlippage?: bigint;
-  walletAddress?: string;
-  sessionKey?: string;
+  walletAddress: string;  // Required for trading operations
+  sessionKey: string;     // Required for signing orders
 }
 
 /**

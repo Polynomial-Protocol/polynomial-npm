@@ -135,6 +135,83 @@ The goal is to transform this example code into a production-ready SDK that deve
 3. Order creation methods use the stored credentials (`this.walletAddress!`, `this.sessionKey!`)
 4. If credentials weren't provided during SDK initialization, appropriate validation errors are thrown
 
+### ✅ **Simulation Code Removed & Documentation Updated**
+
+**Issue Identified**: User correctly pointed out that simulation functionality does not exist and should not be assumed.
+
+**Actions Taken**:
+
+1. **Removed Simulation Method**: Deleted `createMarketOrderWithSimulation` method from SDK class
+2. **Removed Market Simulation**: Deleted `simulateTrade` method from Markets module
+3. **Cleaned Up Types**: Removed `IPostTradeDetails` and `TradeSimulationParams` interfaces
+4. **Updated Imports**: Removed simulation-related imports from all files
+5. **Updated README**: Comprehensive documentation updates including:
+   - Removed all simulation references
+   - Added clear authentication section explaining session key and wallet address requirements
+   - Updated examples to show proper authentication patterns
+   - Added authentication modes (per-operation vs SDK-level)
+   - Added error handling examples for missing authentication
+   - Updated configuration examples with authentication credentials
+
+**Documentation Improvements**:
+
+- Clear explanation of authentication requirements for trading operations
+- Examples showing both per-operation and SDK-level authentication
+- Error handling patterns for missing credentials
+- Updated configuration tables to include walletAddress and sessionKey
+- Improved trading examples with proper authentication flow
+
+**Current State**:
+
+- ✅ No simulation code remains in the codebase
+- ✅ All tests continue to pass
+- ✅ Documentation accurately reflects actual functionality
+- ✅ Authentication flow is clearly documented
+- ✅ No linting errors
+
+### ✅ **Correct Authentication Flow Implemented**
+
+**Issue Identified**: The authentication flow was incorrectly implemented. Credentials should be required during SDK initialization, not passed as parameters to individual methods.
+
+**Correct Implementation**:
+
+1. **Required Credentials**: Made `sessionKey` and `walletAddress` required fields in `SDKConfig`
+2. **Constructor Validation**: SDK constructor now validates and requires all three credentials:
+   - `apiKey` (for API access)
+   - `sessionKey` (for signing orders)
+   - `walletAddress` (for trading operations)
+3. **Method Updates**: Updated convenience methods to use stored credentials:
+   - `createOrder(marketId, size, options?)` - no longer takes sessionKey/walletAddress parameters
+   - `getAccountSummary()` - uses stored walletAddress
+4. **Error Handling**: Clear error messages during SDK initialization if credentials are missing
+5. **Type Safety**: Updated TypeScript types to reflect required fields
+
+**Code Changes**:
+
+- Updated `SDKConfig` interface to require `sessionKey` and `walletAddress`
+- Enhanced constructor validation with detailed error messages
+- Removed `validateAuthentication()` method (no longer needed)
+- Updated `createOrder` method signature and implementation
+- Updated `getAccountSummary` method to use stored credentials
+- Fixed all TypeScript types and removed optional field assertions
+
+**Documentation Updates**:
+
+- Updated Quick Start example to show correct SDK initialization
+- Revised configuration section to emphasize required credentials
+- Updated all API method examples to reflect new signatures
+- Enhanced authentication section with proper flow explanation
+- Updated trading examples throughout the README
+- Added credential security best practices
+
+**Benefits**:
+
+- ✅ Simpler API - credentials provided once during initialization
+- ✅ Better security - credentials validated upfront
+- ✅ Clearer error messages - fail fast during SDK creation
+- ✅ Type safety - required fields properly typed
+- ✅ Consistent behavior - all methods use stored credentials
+
 ## Executor's Feedback or Assistance Requests
 
 **CREATE ORDER FUNCTION ENHANCED WITH DEFAULTS**: Successfully updated the createOrder functionality to have intelligent defaults for all parameters except marketId and size.

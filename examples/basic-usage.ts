@@ -33,10 +33,12 @@ async function runExample(): Promise<void> {
   }
 
   try {
-    // Initialize the SDK
+    // Initialize the SDK with all required credentials
     console.log("🚀 Initializing Polynomial SDK...");
     const sdk = PolynomialSDK.create({
       apiKey: API_KEY,
+      sessionKey: SESSION_KEY,
+      walletAddress: WALLET_ADDRESS,
       chainId: 8008,
     });
 
@@ -51,22 +53,33 @@ async function runExample(): Promise<void> {
     }
     console.log(`💰 ETH Price: $${ethMarket.price}`);
 
-    // Step 3: Create a real market order for ETH
-    console.log("📝 Creating market order for 0.001 ETH...");
-
-    const accountSummary = await sdk.getAccountSummary(WALLET_ADDRESS);
+    // Step 3: Get account summary using stored credentials
+    const accountSummary = await sdk.getAccountSummary();
     console.log("Account fetched", accountSummary);
-    const tradeSize = parseUnits("0.001"); // 0.001 ETH
-    const acceptablePrice = BigInt(Math.floor(ethMarket.price * 1.1 * 1e18)); // 10% slippage
 
-    const orderResult = await sdk.orders.createLongOrder(
-      SESSION_KEY,
-      WALLET_ADDRESS,
-      accountSummary.account.accountId,
+    // Step 4: Create a simple market order using stored credentials
+    console.log("📝 Creating market order for 0.001 ETH...");
+    const tradeSize = parseUnits("0.001"); // 0.001 ETH
+
+    // Option 1: Use the simple createOrder method (recommended)
+    const orderResult = await sdk.createOrder(
       ethMarket.marketId,
       tradeSize,
-      acceptablePrice
+      {
+        isLong: true, // Long position
+        slippagePercentage: 10n // 10% slippage
+      }
     );
+
+    // Option 2: Use the direct orders module method if you need more control
+    // const orderResult = await sdk.orders.createLongOrder(
+    //   SESSION_KEY,
+    //   WALLET_ADDRESS,
+    //   accountSummary.account.accountId,
+    //   ethMarket.marketId,
+    //   tradeSize,
+    //   acceptablePrice
+    // );
 
     console.log("✅ Order created successfully!");
     console.log("Order ID:", orderResult.id || orderResult.orderId || "N/A");
