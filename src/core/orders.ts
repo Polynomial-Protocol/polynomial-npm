@@ -19,15 +19,24 @@ export class Orders {
   private readonly httpClient: HttpClient;
   private readonly orderbookClient: HttpClient;
   private readonly networkConfig: NetworkConfig;
+  private readonly sessionKey: string;
+  private readonly walletAddress: string;
+  private readonly getAccountId: () => Promise<string>;
 
   constructor(
     httpClient: HttpClient,
     orderbookClient: HttpClient,
-    networkConfig: NetworkConfig
+    networkConfig: NetworkConfig,
+    sessionKey: string,
+    walletAddress: string,
+    getAccountId: () => Promise<string>
   ) {
     this.httpClient = httpClient;
     this.orderbookClient = orderbookClient;
     this.networkConfig = networkConfig;
+    this.sessionKey = sessionKey;
+    this.walletAddress = walletAddress;
+    this.getAccountId = getAccountId;
   }
 
   /**
@@ -174,28 +183,14 @@ export class Orders {
   }
 
   /**
-   * Creates and submits a market order
+   * Creates and submits a market order using stored credentials
    */
   async createMarketOrder(
-    sessionKey: string,
-    walletAddress: string,
-    accountId: string,
     params: OrderParams,
     defaultSlippage: bigint = 10n
   ): Promise<any> {
-    // Validation
-    if (!isValidPrivateKey(sessionKey)) {
-      throw new ValidationError("Invalid session key format", {
-        sessionKey: "REDACTED",
-      });
-    }
-
-    if (!isValidAddress(walletAddress)) {
-      throw new ValidationError("Invalid wallet address format", {
-        walletAddress,
-      });
-    }
-
+    // Get account ID from stored credentials
+    const accountId = await this.getAccountId();
     const {
       marketId,
       size,
@@ -238,12 +233,15 @@ export class Orders {
         expiration: getWeekFromNowTimestamp().toString(),
         nonce: generateNonce(),
         chainId: this.networkConfig.chainId,
-        eoa: walletAddress,
+        eoa: this.walletAddress,
         reduceOnly,
       };
 
       // Sign the order
-      const signature = await this.signMarketOrder(sessionKey, orderToSign);
+      const signature = await this.signMarketOrder(
+        this.sessionKey,
+        orderToSign
+      );
 
       // Create the market order request
       const marketOrderRequest: MarketOrderRequest = {
@@ -277,7 +275,13 @@ export class Orders {
         `Failed to create market order: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        { marketId, accountId, size: size.toString(), isLong }
+        {
+          marketId,
+          accountId,
+          size: size.toString(),
+          isLong,
+          walletAddress: this.walletAddress,
+        }
       );
     }
   }
@@ -287,9 +291,6 @@ export class Orders {
    * All other values will be calculated automatically or use defaults
    */
   async createOrder(
-    sessionKey: string,
-    walletAddress: string,
-    accountId: string,
     marketId: string,
     size: bigint,
     options?: {
@@ -299,7 +300,7 @@ export class Orders {
       slippagePercentage?: bigint;
     }
   ): Promise<any> {
-    return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+    return this.createMarketOrder({
       marketId,
       size,
       ...options,
@@ -310,15 +311,12 @@ export class Orders {
    * Creates a long position market order
    */
   async createLongOrder(
-    sessionKey: string,
-    walletAddress: string,
-    accountId: string,
     marketId: string,
     size: bigint,
     acceptablePrice?: bigint,
     reduceOnly: boolean = false
   ): Promise<any> {
-    return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+    return this.createMarketOrder({
       marketId,
       size,
       isLong: true,
@@ -331,15 +329,12 @@ export class Orders {
    * Creates a short position market order
    */
   async createShortOrder(
-    sessionKey: string,
-    walletAddress: string,
-    accountId: string,
     marketId: string,
     size: bigint,
     acceptablePrice?: bigint,
     reduceOnly: boolean = false
   ): Promise<any> {
-    return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+    return this.createMarketOrder({
       marketId,
       size,
       isLong: false,

@@ -145,26 +145,6 @@ export interface IAccountAPIResponse {
 }
 /**
  * ============================
- * Post-Order Simulation Output
- * ============================
- */
-/**
- * Response from `post-trade-details` API.
- * Provides simulated values before order execution.
- */
-export interface IPostTradeDetails {
-    totalFees: string;
-    fillPrice: string;
-    priceImpact: string;
-    newMarginUsage: number;
-    newHealthFactor: number;
-    feasible: boolean;
-    settlementReward: string;
-    liquidationPrice: string | null;
-    errorMsg: string | null;
-}
-/**
- * ============================
  * SDK-Specific Types
  * ============================
  */
@@ -174,17 +154,10 @@ export interface IPostTradeDetails {
 export interface OrderParams {
     marketId: string;
     size: bigint;
-    isLong: boolean;
+    isLong?: boolean;
     acceptablePrice?: bigint;
     reduceOnly?: boolean;
-}
-/**
- * Trade simulation parameters
- */
-export interface TradeSimulationParams {
-    accountId: string;
-    marketId: string;
-    sizeDelta: bigint;
+    slippagePercentage?: bigint;
 }
 /**
  * Market data filters

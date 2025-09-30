@@ -24,49 +24,53 @@ describe("PolynomialSDK", () => {
 
     it("should throw ConfigurationError when API key is missing", () => {
       expect(() => {
-        new PolynomialSDK({ 
+        new PolynomialSDK({
           apiKey: "",
-          sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          walletAddress: "0x1234567890123456789012345678901234567890"
+          sessionKey:
+            "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          walletAddress: "0x1234567890123456789012345678901234567890",
         });
       }).toThrow(ConfigurationError);
     });
 
     it("should throw ConfigurationError when session key is missing", () => {
       expect(() => {
-        new PolynomialSDK({ 
+        new PolynomialSDK({
           apiKey: "test-key",
           sessionKey: "",
-          walletAddress: "0x1234567890123456789012345678901234567890"
+          walletAddress: "0x1234567890123456789012345678901234567890",
         });
       }).toThrow(ConfigurationError);
     });
 
     it("should throw ConfigurationError when wallet address is missing", () => {
       expect(() => {
-        new PolynomialSDK({ 
+        new PolynomialSDK({
           apiKey: "test-key",
-          sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          walletAddress: ""
+          sessionKey:
+            "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          walletAddress: "",
         });
       }).toThrow(ConfigurationError);
     });
 
     it("should throw ValidationError for invalid wallet address format", () => {
       expect(() => {
-        new PolynomialSDK({ 
+        new PolynomialSDK({
           apiKey: "test-key",
-          sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          walletAddress: "invalid-address"
+          sessionKey:
+            "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          walletAddress: "invalid-address",
         });
       }).toThrow(ValidationError);
     });
 
     it("should use default values for optional config", () => {
-      const sdk = new PolynomialSDK({ 
+      const sdk = new PolynomialSDK({
         apiKey: "test-key",
-        sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-        walletAddress: "0x1234567890123456789012345678901234567890"
+        sessionKey:
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        walletAddress: "0x1234567890123456789012345678901234567890",
       });
       const config = sdk.getConfig();
 
@@ -80,7 +84,8 @@ describe("PolynomialSDK", () => {
     it("should override defaults with provided config", () => {
       const customConfig = {
         apiKey: "test-key",
-        sessionKey: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        sessionKey:
+          "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         walletAddress: "0x1234567890123456789012345678901234567890",
         chainId: 1337,
         defaultSlippage: 5n,
@@ -207,7 +212,9 @@ describe("PolynomialSDK", () => {
       const summary = await sdk.getAccountSummary();
       expect(summary).toBeDefined();
       expect(summary.account.accountId).toBe("123");
-      expect(sdk.accounts.getAccountSummary).toHaveBeenCalledWith("0x1234567890123456789012345678901234567890");
+      expect(sdk.accounts.getAccountSummary).toHaveBeenCalledWith(
+        "0x1234567890123456789012345678901234567890"
+      );
     });
 
     it("should get market data for specific symbol", async () => {
@@ -272,16 +279,16 @@ describe("PolynomialSDK", () => {
     it("should create order using stored credentials", async () => {
       jest.spyOn(sdk.orders, "createOrder").mockResolvedValue({
         orderId: "order-123",
-        status: "submitted"
+        status: "submitted",
       });
 
-      const result = await sdk.createOrder("market-1", BigInt("1000000000000000000"));
+      const result = await sdk.createOrder(
+        "market-1",
+        BigInt("1000000000000000000")
+      );
       expect(result).toBeDefined();
       expect(result.orderId).toBe("order-123");
       expect(sdk.orders.createOrder).toHaveBeenCalledWith(
-        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-        "0x1234567890123456789012345678901234567890",
-        "123",
         "market-1",
         BigInt("1000000000000000000"),
         undefined

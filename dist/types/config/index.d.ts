@@ -20,6 +20,8 @@ export interface SDKConfig {
     orderbookEndpoint?: string;
     relayerAddress?: string;
     defaultSlippage?: bigint;
+    walletAddress: string;
+    sessionKey: string;
 }
 /**
  * Network configuration for different chains

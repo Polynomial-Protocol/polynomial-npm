@@ -21,6 +21,7 @@ export class PolynomialSDK {
   private readonly orderbookClient: HttpClient;
   private readonly walletAddress: string;
   private readonly sessionKey: string;
+  private accountId?: string; // Will be fetched and cached during initialization
 
   // Module instances
   public readonly markets: Markets;
@@ -36,15 +37,29 @@ export class PolynomialSDK {
     }
 
     if (!config.walletAddress) {
-      throw new ConfigurationError("Wallet address is required for SDK initialization", {
-        providedConfig: { ...config, apiKey: "REDACTED", sessionKey: "REDACTED" },
-      });
+      throw new ConfigurationError(
+        "Wallet address is required for SDK initialization",
+        {
+          providedConfig: {
+            ...config,
+            apiKey: "REDACTED",
+            sessionKey: "REDACTED",
+          },
+        }
+      );
     }
 
     if (!config.sessionKey) {
-      throw new ConfigurationError("Session key is required for SDK initialization", {
-        providedConfig: { ...config, apiKey: "REDACTED", sessionKey: "REDACTED" },
-      });
+      throw new ConfigurationError(
+        "Session key is required for SDK initialization",
+        {
+          providedConfig: {
+            ...config,
+            apiKey: "REDACTED",
+            sessionKey: "REDACTED",
+          },
+        }
+      );
     }
 
     // Validate wallet address format
@@ -101,12 +116,59 @@ export class PolynomialSDK {
 
     // Initialize modules
     this.markets = new Markets(this.httpClient, this.config.chainId);
-    this.accounts = new Accounts(this.httpClient, this.config.chainId);
+    this.accounts = new Accounts(
+      this.httpClient,
+      this.config.chainId,
+      this.walletAddress,
+      () => this.getAccountId()
+    );
     this.orders = new Orders(
       this.httpClient,
       this.orderbookClient,
-      this.networkConfig
+      this.networkConfig,
+      this.sessionKey,
+      this.walletAddress,
+      () => this.getAccountId()
     );
+
+    // Fetch and cache account ID during initialization
+    this.initializeAccountId();
+  }
+
+  /**
+   * Fetches and caches the account ID for the wallet address
+   */
+  private async initializeAccountId(): Promise<void> {
+    try {
+      const account = await this.accounts.getAccount(this.walletAddress);
+      if (account) {
+        this.accountId = account.accountId;
+      }
+    } catch (error) {
+      // Account ID will be fetched lazily if initialization fails
+      console.warn(
+        `Failed to fetch account ID during initialization: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  /**
+   * Gets the cached account ID, fetching it if not already cached
+   */
+  private async getAccountId(): Promise<string> {
+    if (!this.accountId) {
+      const account = await this.accounts.getAccount(this.walletAddress);
+      if (!account) {
+        throw new ValidationError(
+          `No account found for wallet address: ${this.walletAddress}`,
+          { walletAddress: this.walletAddress }
+        );
+      }
+      this.accountId = account.accountId;
+    }
+    return this.accountId;
   }
 
   /**
@@ -129,7 +191,6 @@ export class PolynomialSDK {
   getNetworkConfig(): Readonly<NetworkConfig> {
     return { ...this.networkConfig };
   }
-
 
   /**
    * Updates the API key
@@ -159,24 +220,8 @@ export class PolynomialSDK {
     }
   ): Promise<any> {
     try {
-      // Get account using stored wallet address
-      const account = await this.accounts.getAccount(this.walletAddress);
-      if (!account) {
-        throw new ValidationError(
-          `No account found for wallet address: ${this.walletAddress}`,
-          { walletAddress: this.walletAddress }
-        );
-      }
-
-      // Create the order using the Orders module with stored credentials
-      return await this.orders.createOrder(
-        this.sessionKey,
-        this.walletAddress,
-        account.accountId,
-        marketId,
-        size,
-        options
-      );
+      // Create the order using the Orders module with stored credentials (including account ID)
+      return await this.orders.createOrder(marketId, size, options);
     } catch (error) {
       if (error instanceof ValidationError) {
         throw error;
@@ -189,7 +234,6 @@ export class PolynomialSDK {
       );
     }
   }
-
 
   /**
    * Convenience method to get account summary with positions

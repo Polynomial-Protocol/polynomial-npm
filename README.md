@@ -112,9 +112,9 @@ All SDK instances require these credentials:
 
 ```typescript
 const sdk = PolynomialSDK.create({
-  apiKey: "your-api-key",           // Required: API authentication
-  sessionKey: "0x1234...",          // Required: Private key for signing orders
-  walletAddress: "0x742d35...",     // Required: Your trading wallet address
+  apiKey: "your-api-key", // Required: API authentication
+  sessionKey: "0x1234...", // Required: Private key for signing orders
+  walletAddress: "0x742d35...", // Required: Your trading wallet address
 });
 ```
 
@@ -125,9 +125,9 @@ const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
   sessionKey: "0x1234...",
   walletAddress: "0x742d35...",
-  chainId: 8008,                    // Optional: Network chain ID
-  defaultSlippage: 5n,              // Optional: Default slippage (5%)
-  apiEndpoint: "https://...",       // Optional: Custom API endpoint
+  chainId: 8008, // Optional: Network chain ID
+  defaultSlippage: 5n, // Optional: Default slippage (5%)
+  apiEndpoint: "https://...", // Optional: Custom API endpoint
   orderbookEndpoint: "https://...", // Optional: Custom orderbook endpoint
 });
 ```
@@ -142,26 +142,26 @@ Creates a new SDK instance.
 
 **Parameters:**
 
-| Parameter           | Type     | Required | Default           | Description                                   |
-| ------------------- | -------- | -------- | ----------------- | --------------------------------------------- |
-| `apiKey`            | `string` | ✅       | -                 | Your API key from Polynomial                  |
-| `sessionKey`        | `string` | ✅       | -                 | Your private key for signing orders           |
-| `walletAddress`     | `string` | ✅       | -                 | Your trading wallet address                   |
-| `chainId`           | `number` | ❌       | `8008`            | Network chain ID                              |
-| `apiEndpoint`       | `string` | ❌       | Mainnet API       | Custom API endpoint                           |
-| `orderbookEndpoint` | `string` | ❌       | Mainnet orderbook | Custom orderbook endpoint                     |
-| `relayerAddress`    | `string` | ❌       | Default relayer   | Custom relayer address                        |
-| `defaultSlippage`   | `bigint` | ❌       | `10n`             | Default slippage tolerance (%)                |
+| Parameter           | Type     | Required | Default           | Description                         |
+| ------------------- | -------- | -------- | ----------------- | ----------------------------------- |
+| `apiKey`            | `string` | ✅       | -                 | Your API key from Polynomial        |
+| `sessionKey`        | `string` | ✅       | -                 | Your private key for signing orders |
+| `walletAddress`     | `string` | ✅       | -                 | Your trading wallet address         |
+| `chainId`           | `number` | ❌       | `8008`            | Network chain ID                    |
+| `apiEndpoint`       | `string` | ❌       | Mainnet API       | Custom API endpoint                 |
+| `orderbookEndpoint` | `string` | ❌       | Mainnet orderbook | Custom orderbook endpoint           |
+| `relayerAddress`    | `string` | ❌       | Default relayer   | Custom relayer address              |
+| `defaultSlippage`   | `bigint` | ❌       | `10n`             | Default slippage tolerance (%)      |
 
 **Returns:** `PolynomialSDK` instance
 
 **Example:**
 
 ```typescript
-const sdk = PolynomialSDK.create({ 
+const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
   sessionKey: "0x1234567890abcdef...",
-  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7"
+  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7",
 });
 ```
 
@@ -270,68 +270,68 @@ const position = await sdk.accounts.getPositionByMarket(
 
 ### 📝 Orders Module
 
-#### `sdk.orders.createMarketOrder(sessionKey, walletAddress, accountId, params)`
+#### `sdk.orders.createMarketOrder(params)`
 
-Creates, signs, and submits a market order.
+Creates, signs, and submits a market order using the stored credentials from SDK initialization.
 
 **Parameters:**
 
-- `sessionKey` - Private key for signing orders
-- `walletAddress` - Wallet address
-- `accountId` - Account ID
 - `params` - Order parameters
 
 **Returns:** `Promise<OrderResult>`
 
+**Note:** This method uses the sessionKey, walletAddress, and accountId from SDK initialization. For the simplest API, use `sdk.createOrder()`.
+
 ```typescript
-const result = await sdk.orders.createMarketOrder(
-  sessionKey,
-  walletAddress,
-  accountId,
-  {
-    marketId: "market-id",
-    size: parseUnits("0.1"),
-    isLong: true,
-    acceptablePrice: parseUnits("2000"),
-  }
-);
+const result = await sdk.orders.createMarketOrder({
+  marketId: "market-id",
+  size: parseUnits("0.1"),
+  isLong: true,
+  acceptablePrice: parseUnits("2000"),
+});
 ```
 
-#### `sdk.orders.createLongOrder(...)`
+#### `sdk.orders.createLongOrder(marketId, size, acceptablePrice?, reduceOnly?)`
 
-Convenience method for creating long positions. Acceptable price is now optional and will be calculated automatically if not provided.
+Creates a long position market order using stored credentials from SDK initialization.
+
+**Parameters:**
+
+- `marketId` - Market ID
+- `size` - Position size
+- `acceptablePrice` (optional) - Custom acceptable price
+- `reduceOnly` (optional) - Whether this is a reduce-only order
+
+**Note:** For convenience, use `sdk.createOrder(marketId, size, { isLong: true })` instead.
 
 ```typescript
 // With automatic price calculation
-const result = await sdk.orders.createLongOrder(
-  sessionKey,
-  walletAddress,
-  accountId,
-  "market-id",
-  parseUnits("0.1")
-);
+const result = await sdk.orders.createLongOrder("market-id", parseUnits("0.1"));
 
 // With custom acceptable price
 const result = await sdk.orders.createLongOrder(
-  sessionKey,
-  walletAddress,
-  accountId,
   "market-id",
   parseUnits("0.1"),
   parseUnits("2000")
 );
 ```
 
-#### `sdk.orders.createShortOrder(...)`
+#### `sdk.orders.createShortOrder(marketId, size, acceptablePrice?, reduceOnly?)`
 
-Convenience method for creating short positions. Acceptable price is now optional and will be calculated automatically if not provided.
+Creates a short position market order using stored credentials from SDK initialization.
+
+**Parameters:**
+
+- `marketId` - Market ID
+- `size` - Position size
+- `acceptablePrice` (optional) - Custom acceptable price
+- `reduceOnly` (optional) - Whether this is a reduce-only order
+
+**Note:** For convenience, use `sdk.createOrder(marketId, size, { isLong: false })` instead.
 
 ```typescript
 // With automatic price calculation
 const result = await sdk.orders.createShortOrder(
-  sessionKey,
-  walletAddress,
-  accountId,
   "market-id",
   parseUnits("0.1")
 );
@@ -364,20 +364,13 @@ Creates a market order with minimal parameters. Only `marketId` and `size` are r
 
 ```typescript
 // Minimal usage - only marketId and size required
-const result = await sdk.createOrder(
-  "market-id",
-  parseUnits("0.1")
-);
+const result = await sdk.createOrder("market-id", parseUnits("0.1"));
 
 // With custom options
-const result = await sdk.createOrder(
-  "market-id",
-  parseUnits("0.1"),
-  {
-    isLong: false, // Short position
-    slippagePercentage: 5n, // 5% slippage
-  }
-);
+const result = await sdk.createOrder("market-id", parseUnits("0.1"), {
+  isLong: false, // Short position
+  slippagePercentage: 5n, // 5% slippage
+});
 ```
 
 #### `sdk.getAccountSummary()`
@@ -457,14 +450,11 @@ The SDK provides comprehensive, typed error handling for robust applications:
 import { APIError, ValidationError } from "polynomialfi";
 
 try {
-  const result = await sdk.orders.createLongOrder(
-    sessionKey,
-    walletAddress,
-    accountId,
-    "market-id",
-    parseUnits("0.1"),
-    parseUnits("2000")
-  );
+  // Using the convenience method with stored credentials
+  const result = await sdk.createOrder("market-id", parseUnits("0.1"), {
+    isLong: true,
+    acceptablePrice: parseUnits("2000"),
+  });
 } catch (error) {
   if (error instanceof APIError) {
     console.error("API Error:", error.message);
@@ -509,7 +499,7 @@ const accountSummary = await sdk.getAccountSummary(walletAddress);
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
 // Initialize SDK with all required credentials
-const sdk = PolynomialSDK.create({ 
+const sdk = PolynomialSDK.create({
   apiKey: "your-key",
   sessionKey: "0x1234567890abcdef...", // Your private key for signing
   walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
@@ -590,9 +580,9 @@ All credentials must be provided when creating the SDK instance:
 
 ```typescript
 const sdk = PolynomialSDK.create({
-  apiKey: "your-api-key",           // Required for API access
-  sessionKey: "0x1234...",          // Required for signing orders
-  walletAddress: "0x742d35...",     // Required for trading operations
+  apiKey: "your-api-key", // Required for API access
+  sessionKey: "0x1234...", // Required for signing orders
+  walletAddress: "0x742d35...", // Required for trading operations
 });
 
 // All trading methods use the stored credentials

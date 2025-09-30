@@ -12,45 +12,15 @@ import { IMarketDataReceived, IMarkets, IPostTradeDetails } from "./type";
  * - Expects `markets` field in response to contain trading pairs.
  */
 export const getMarkets = async (
-    x_api_key: string
+  x_api_key: string
 ): Promise<IMarkets[] | null> => {
-    const response = await get(`markets`, x_api_key);
+  const response = await get(`markets`, x_api_key);
 
-    if (response.status === 200) {
-        const data: IMarketDataReceived[] = await response.json();
-        return data.find((item) => item.chainId === CHAIN_ID)?.markets ?? null;
-    } else {
-        console.error('Failed to fetch markets:', response.statusText);
-        return null;
-    }
-};
-
-/**
- * Simulates the result of a market order before submitting it.
- * Returns post-trade metrics like fill price, margin usage, liquidation price, etc.
- *
- * @param accountId - ID of the trading account
- * @param chainId - Target chain ID as a string
- * @param marketId - Unique ID of the selected market
- * @param sizeDelta - Position size (in base units, as bigint)
- * @returns Post-trade detail simulation result
- *
- * Notes:
- * - Useful to show users potential outcomes before signing a market order.
- */
-export const fetchPostMarketDetails = async (
-    accountId: string,
-    chainId: string,
-    marketId: string,
-    sizeDelta: bigint,
-    x_api_key: string
-): Promise<IPostTradeDetails> => {
-    const response = await post(`post-trade-details?chainId=${chainId}`, {
-        accountId,
-        marketId,
-        sizeDelta: sizeDelta.toString(), // convert bigint to string for JSON compatibility
-    }, x_api_key);
-
-    const data: IPostTradeDetails = await response.json();
-    return data;
+  if (response.status === 200) {
+    const data: IMarketDataReceived[] = await response.json();
+    return data.find((item) => item.chainId === CHAIN_ID)?.markets ?? null;
+  } else {
+    console.error("Failed to fetch markets:", response.statusText);
+    return null;
+  }
 };

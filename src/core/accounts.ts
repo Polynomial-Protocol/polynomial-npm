@@ -13,10 +13,19 @@ import { isValidAddress } from "../utils";
 export class Accounts {
   private readonly httpClient: HttpClient;
   private readonly chainId: number;
+  private readonly walletAddress: string;
+  private readonly getAccountId: () => Promise<string>;
 
-  constructor(httpClient: HttpClient, chainId: number) {
+  constructor(
+    httpClient: HttpClient,
+    chainId: number,
+    walletAddress: string,
+    getAccountId: () => Promise<string>
+  ) {
     this.httpClient = httpClient;
     this.chainId = chainId;
+    this.walletAddress = walletAddress;
+    this.getAccountId = getAccountId;
   }
 
   /**
@@ -190,5 +199,32 @@ export class Accounts {
         { walletAddress, chainId: this.chainId }
       );
     }
+  }
+
+  /**
+   * Gets all positions for the stored account
+   */
+  async getMyPositions(): Promise<IPosition[]> {
+    return this.getPositions(this.walletAddress);
+  }
+
+  /**
+   * Gets a specific position by market ID for the stored account
+   */
+  async getMyPositionByMarket(marketId: string): Promise<IPosition | null> {
+    return this.getPositionByMarket(this.walletAddress, marketId);
+  }
+
+  /**
+   * Gets account summary for the stored account
+   */
+  async getMyAccountSummary(): Promise<{
+    account: IAccountAPIResponse;
+    positions: IPosition[];
+    totalPositions: number;
+    totalUnrealizedPnl: string;
+    totalRealizedPnl: string;
+  }> {
+    return this.getAccountSummary(this.walletAddress);
   }
 }

@@ -14,6 +14,25 @@ class Orders {
         this.networkConfig = networkConfig;
     }
     /**
+     * Fetches current market price for a given market ID
+     */
+    async getMarketPrice(marketId) {
+        try {
+            const response = await this.httpClient.get(`markets?chainId=${this.networkConfig.chainId}`);
+            const market = response.markets?.find((m) => m.marketId === marketId);
+            if (!market) {
+                throw new errors_1.ValidationError(`Market not found: ${marketId}`, {
+                    marketId,
+                });
+            }
+            // Convert market price to bigint (assuming price is in standard format)
+            return (0, utils_1.parseUnits)(market.price.toString());
+        }
+        catch (error) {
+            throw new errors_1.OrderError(`Failed to fetch market price for ${marketId}: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId });
+        }
+    }
+    /**
      * Signs a market order using EIP-712 typed data
      */
     async signMarketOrder(sessionKey, order) {
@@ -104,14 +123,18 @@ class Orders {
                 walletAddress,
             });
         }
-        const { marketId, size, isLong, acceptablePrice, reduceOnly = false, } = params;
+        const { marketId, size, isLong = true, // Default to long position
+        acceptablePrice, reduceOnly = false, slippagePercentage, } = params;
         try {
             // Calculate acceptable price if not provided
             let finalAcceptablePrice = acceptablePrice;
             if (!finalAcceptablePrice) {
-                // For market orders, we need to get current market price
-                // This is a simplified approach - in practice, you might want to get this from market data
-                throw new errors_1.ValidationError("Acceptable price must be provided for market orders", { marketId });
+                // Fetch current market price
+                const marketPrice = await this.getMarketPrice(marketId);
+                // Use provided slippage or default
+                const slippage = slippagePercentage || defaultSlippage;
+                // Calculate acceptable price with slippage protection
+                finalAcceptablePrice = (0, utils_1.calculateAcceptablePrice)(marketPrice, slippage, isLong);
             }
             // Build the order to sign
             const orderToSign = {
@@ -160,6 +183,17 @@ class Orders {
             }
             throw new errors_1.OrderError(`Failed to create market order: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, accountId, size: size.toString(), isLong });
         }
+    }
+    /**
+     * Creates a simple market order with minimal parameters
+     * All other values will be calculated automatically or use defaults
+     */
+    async createOrder(sessionKey, walletAddress, accountId, marketId, size, options) {
+        return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+            marketId,
+            size,
+            ...options,
+        });
     }
     /**
      * Creates a long position market order

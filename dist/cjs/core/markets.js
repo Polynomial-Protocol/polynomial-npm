@@ -64,28 +64,6 @@ class Markets {
         }
     }
     /**
-     * Simulates the result of a market order before submitting it
-     */
-    async simulateTrade(params) {
-        const { accountId, marketId, sizeDelta } = params;
-        try {
-            const response = await this.httpClient.post(`post-trade-details?chainId=${this.chainId}`, {
-                accountId,
-                marketId,
-                sizeDelta: sizeDelta.toString(),
-            });
-            return response;
-        }
-        catch (error) {
-            throw new errors_1.MarketError(`Failed to simulate trade: ${error instanceof Error ? error.message : "Unknown error"}`, {
-                accountId,
-                marketId,
-                sizeDelta: sizeDelta.toString(),
-                chainId: this.chainId,
-            });
-        }
-    }
-    /**
      * Gets market statistics for a specific market
      */
     async getMarketStats(marketId) {

@@ -16,7 +16,7 @@ The first stable release of the Polynomial SDK - a production-ready TypeScript S
 #### Core SDK Features
 
 - **PolynomialSDK** - Main SDK class with flexible configuration management
-- **Markets Module** - Market data fetching, statistics, and trade simulation
+- **Markets Module** - Market data fetching and statistics
 - **Accounts Module** - Account management and position tracking
 - **Orders Module** - Market order creation, signing, and submission
 - **HttpClient** - Robust HTTP communication layer with error handling
@@ -124,16 +124,14 @@ import { PolynomialSDK, parseUnits } from "polynomial-sdk";
 
 const sdk = PolynomialSDK.create({
   apiKey: "your-api-key",
+  sessionKey: "0x1234...",
+  walletAddress: "0x742d35...",
 });
 
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
-const orderResult = await sdk.createMarketOrderWithSimulation(
-  sessionKey,
-  walletAddress,
-  "ETH",
-  parseUnits("0.1"),
-  true,
-  10n
+const orderResult = await sdk.createOrder(
+  ethMarket.marketId,
+  parseUnits("0.1")
 );
 ```
 

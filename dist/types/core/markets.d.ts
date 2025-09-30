@@ -1,5 +1,5 @@
 import { HttpClient } from "./http";
-import { IMarkets, IPostTradeDetails, MarketFilters, TradeSimulationParams } from "../types";
+import { IMarkets, MarketFilters } from "../types";
 /**
  * Markets module for handling market data operations
  */
@@ -19,10 +19,6 @@ export declare class Markets {
      * Gets a specific market by market ID
      */
     getMarketById(marketId: string): Promise<IMarkets | null>;
-    /**
-     * Simulates the result of a market order before submitting it
-     */
-    simulateTrade(params: TradeSimulationParams): Promise<IPostTradeDetails>;
     /**
      * Gets market statistics for a specific market
      */

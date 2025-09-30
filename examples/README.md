@@ -49,7 +49,6 @@ The example scripts showcase:
 - ✅ **SDK Initialization** - Setting up the Polynomial SDK
 - ✅ **Market Data** - Fetching available markets and prices
 - ✅ **Account Management** - Getting account information and positions
-- ✅ **Trade Simulation** - Simulating trades before execution
 - ✅ **Order Creation** - Creating and signing market orders
 - ✅ **Error Handling** - Proper error handling patterns
 

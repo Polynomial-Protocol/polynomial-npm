@@ -154,7 +154,6 @@ export interface IAccountAPIResponse {
   chainId: number;
 }
 
-
 /**
  * ============================
  * SDK-Specific Types
@@ -172,7 +171,6 @@ export interface OrderParams {
   reduceOnly?: boolean;
   slippagePercentage?: bigint;
 }
-
 
 /**
  * Market data filters

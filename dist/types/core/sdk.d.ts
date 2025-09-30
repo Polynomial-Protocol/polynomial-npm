@@ -3,6 +3,10 @@ import { Accounts } from "./accounts";
 import { Orders } from "./orders";
 import { SDKConfig, NetworkConfig } from "../config";
 /**
+ * Internal SDK config type - all fields are required
+ */
+type InternalSDKConfig = Required<SDKConfig>;
+/**
  * Main Polynomial SDK class
  */
 export declare class PolynomialSDK {
@@ -10,6 +14,8 @@ export declare class PolynomialSDK {
     private readonly networkConfig;
     private readonly httpClient;
     private readonly orderbookClient;
+    private readonly walletAddress;
+    private readonly sessionKey;
     readonly markets: Markets;
     readonly accounts: Accounts;
     readonly orders: Orders;
@@ -21,7 +27,7 @@ export declare class PolynomialSDK {
     /**
      * Gets the current configuration
      */
-    getConfig(): Readonly<Required<SDKConfig>>;
+    getConfig(): Readonly<InternalSDKConfig>;
     /**
      * Gets the network configuration
      */
@@ -31,16 +37,21 @@ export declare class PolynomialSDK {
      */
     updateApiKey(newApiKey: string): void;
     /**
-     * Convenience method to create a market order with trade simulation
+     * Simple convenience method to create an order with minimal parameters
+     * Only marketId and size are required, everything else uses sensible defaults
+     * Uses the sessionKey and walletAddress provided during SDK initialization
      */
-    createMarketOrderWithSimulation(sessionKey: string, walletAddress: string, marketSymbol: string, size: bigint, isLong: boolean, maxSlippage?: bigint): Promise<{
-        simulation: any;
-        orderResult: any;
-    }>;
+    createOrder(marketId: string, size: bigint, options?: {
+        isLong?: boolean;
+        acceptablePrice?: bigint;
+        reduceOnly?: boolean;
+        slippagePercentage?: bigint;
+    }): Promise<any>;
     /**
      * Convenience method to get account summary with positions
+     * Uses the walletAddress provided during SDK initialization
      */
-    getAccountSummary(walletAddress: string): Promise<{
+    getAccountSummary(): Promise<{
         account: import("..").IAccountAPIResponse;
         positions: import("..").IPosition[];
         totalPositions: number;
@@ -52,4 +63,5 @@ export declare class PolynomialSDK {
      */
     getMarketData(symbol?: string): Promise<import("..").IMarkets[] | Partial<import("..").IMarkets> | null>;
 }
+export {};
 //# sourceMappingURL=sdk.d.ts.map

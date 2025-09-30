@@ -62,14 +62,10 @@ async function runExample(): Promise<void> {
     const tradeSize = parseUnits("0.001"); // 0.001 ETH
 
     // Option 1: Use the simple createOrder method (recommended)
-    const orderResult = await sdk.createOrder(
-      ethMarket.marketId,
-      tradeSize,
-      {
-        isLong: true, // Long position
-        slippagePercentage: 10n // 10% slippage
-      }
-    );
+    const orderResult = await sdk.createOrder(ethMarket.marketId, tradeSize, {
+      isLong: true, // Long position
+      slippagePercentage: 10n, // 10% slippage
+    });
 
     // Option 2: Use the direct orders module method if you need more control
     // const orderResult = await sdk.orders.createLongOrder(
