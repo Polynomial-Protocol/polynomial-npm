@@ -96,7 +96,6 @@ async function example() {
   const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
   console.log(`ETH Price: $${ethMarket?.price}`);
 
-  // Create a simple order - credentials are already stored in SDK
   const result = await sdk.createOrder(
     ethMarket.marketId,
     parseUnits("0.1") // 0.1 ETH
@@ -617,11 +616,11 @@ The SDK requires all credentials to be provided during initialization. This ensu
 
 ### Required Credentials
 
-| Credential         | Description                              | Required For     | How to Get                                                           |
-| ------------------ | ---------------------------------------- | ---------------- | -------------------------------------------------------------------- |
-| **API Key**        | Authentication for API access            | All operations   | Contact Polynomial team via [Discord](https://discord.gg/polynomial) |
-| **Session Key**    | Private key for signing orders (EIP-712) | Order operations | Generate or use existing private key                                 |
-| **Wallet Address** | Your primary trading wallet address      | Order operations | Your Ethereum wallet address                                         |
+| Credential         | Description                              | Required For     | How to Get                                                                                                                                                          |
+| ------------------ | ---------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **API Key**        | Authentication for API access            | All operations   | Generate/give permission at [Polynomial Portfolio API](https://polynomial.fi/en/mainnet/portfolio/api) or contact team via [Discord](https://discord.gg/polynomial) |
+| **Session Key**    | Private key for signing orders (EIP-712) | Order operations | Generate or use existing private key                                                                                                                                |
+| **Wallet Address** | Your primary trading wallet address      | Order operations | Your Ethereum wallet address                                                                                                                                        |
 
 ### Authentication Flow
 
