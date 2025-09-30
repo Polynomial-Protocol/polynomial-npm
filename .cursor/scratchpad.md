@@ -1,111 +1,374 @@
-# Polynomial SDK - NPM Package Development Plan
+# Polynomial SDK - Python Pip Package Development Plan
 
 ## Background and Motivation
 
-Based on the existing builder code example repository, we need to create a comprehensive NPM package called "polynomial-sdk" that wraps around all the Polynomial Perpetuals trading functionality. The current repository contains:
+Based on the successful TypeScript SDK implementation, we now need to create a Python equivalent as a pip package called "polynomial-py" that provides the same functionality for Python developers. The TypeScript SDK contains:
 
 1. **Core Trading Functions**: Market data fetching, account management, order placement
 2. **Nitro Mode Integration**: Session key-based order signing and submission
 3. **Type Definitions**: Complete TypeScript interfaces for all API responses
 4. **Configuration Management**: Chain IDs, endpoints, and contract addresses
 
-The goal is to transform this example code into a production-ready SDK that developers can easily install and use to integrate with Polynomial Perpetuals.
+The goal is to create a Python equivalent of the TypeScript SDK that Python developers can easily install via pip and use to integrate with Polynomial Perpetuals.
 
 ## Key Challenges and Analysis
 
 ### Technical Challenges
 
-1. **Package Structure**: Need to organize code into logical modules with proper exports
-2. **Type Safety**: Ensure comprehensive TypeScript support with proper type exports
+1. **Package Structure**: Need to organize code into logical Python modules with proper imports
+2. **Type Safety**: Implement comprehensive type hints using Python's typing system
 3. **Configuration Management**: Allow flexible configuration while maintaining sensible defaults
-4. **Error Handling**: Implement robust error handling and meaningful error messages
+4. **Error Handling**: Implement robust error handling with custom exception classes
 5. **Documentation**: Create comprehensive API documentation and usage examples
-6. **Testing**: Implement comprehensive test coverage for all functionality
-7. **Build System**: Set up proper build pipeline for multiple output formats (CJS, ESM)
+6. **Testing**: Implement comprehensive test coverage using pytest
+7. **Build System**: Set up proper build pipeline for PyPI publishing with setuptools/poetry
 
 ### Design Considerations
 
-1. **API Design**: Should follow common SDK patterns with intuitive method names
-2. **Authentication**: Secure handling of session keys and API keys
+1. **API Design**: Should follow Pythonic patterns with intuitive method names and snake_case
+2. **Authentication**: Secure handling of session keys and API keys using Python best practices
 3. **Network Support**: Support for different chains/networks
-4. **Bundle Size**: Keep the package lightweight for browser usage
-5. **Backwards Compatibility**: Plan for future API changes
+4. **Dependencies**: Keep dependencies minimal and use well-maintained packages
+5. **Backwards Compatibility**: Plan for future API changes with proper versioning
+6. **Async Support**: Implement both sync and async versions using aiohttp/requests
 
 ## High-level Task Breakdown
 
 ### Phase 1: Package Foundation
 
-- [ ] **Task 1.1**: Set up proper package.json with correct metadata, dependencies, and scripts
-  - Success Criteria: Package.json configured for npm publishing with proper entry points
-- [ ] **Task 1.2**: Create proper TypeScript build configuration for multiple output formats
-  - Success Criteria: Builds generate both CommonJS and ESM outputs with type declarations
-- [ ] **Task 1.3**: Restructure code into logical modules with proper exports
-  - Success Criteria: Clean module structure with index.ts exporting all public APIs
+- [ ] **Task 1.1**: Set up proper Python package structure with pyproject.toml/setup.py
+  - Success Criteria: Package configured for PyPI publishing with proper entry points
+- [ ] **Task 1.2**: Create proper Python package structure with **init**.py files
+  - Success Criteria: Clean module structure with proper imports and exports
+- [ ] **Task 1.3**: Set up development environment with poetry/pip-tools for dependency management
+  - Success Criteria: Reproducible development environment with locked dependencies
 
 ### Phase 2: Core SDK Implementation
 
 - [ ] **Task 2.1**: Create main PolynomialSDK class with configuration management
   - Success Criteria: SDK can be initialized with API keys and configuration options
 - [ ] **Task 2.2**: Implement Markets module for market data operations
-  - Success Criteria: Can fetch markets, market details, and post-trade simulations
+  - Success Criteria: Can fetch markets, market details using requests/aiohttp
 - [ ] **Task 2.3**: Implement Accounts module for account management
   - Success Criteria: Can fetch account information and manage account operations
-- [ ] **Task 2.4**: Implement Orders module for order management
-  - Success Criteria: Can create, sign, and submit market orders with proper validation
+- [ ] **Task 2.4**: Implement Orders module for order management with EIP-712 signing
+  - Success Criteria: Can create, sign, and submit market orders using eth_account library
 
 ### Phase 3: Advanced Features
 
-- [ ] **Task 3.1**: Add comprehensive error handling and custom error types
-  - Success Criteria: All errors are properly typed and provide meaningful messages
-- [ ] **Task 3.2**: Implement utilities for price calculations and conversions
+- [ ] **Task 3.1**: Add comprehensive error handling and custom exception classes
+  - Success Criteria: All errors are properly typed with custom Python exceptions
+- [ ] **Task 3.2**: Implement utilities for price calculations and conversions using Decimal
   - Success Criteria: Helper functions for slippage, price formatting, and unit conversions
 - [ ] **Task 3.3**: Add support for different networks/chains
   - Success Criteria: SDK can be configured for different Polynomial deployments
+- [ ] **Task 3.4**: Implement both sync and async HTTP clients
+  - Success Criteria: Support for both requests (sync) and aiohttp (async) backends
 
 ### Phase 4: Testing & Documentation
 
-- [ ] **Task 4.1**: Set up comprehensive test suite with Jest
-  - Success Criteria: >90% code coverage with unit and integration tests
-- [ ] **Task 4.2**: Create detailed API documentation and usage examples
+- [ ] **Task 4.1**: Set up comprehensive test suite with pytest
+  - Success Criteria: >90% code coverage with unit and integration tests using pytest
+- [ ] **Task 4.2**: Create detailed API documentation using Sphinx or mkdocs
   - Success Criteria: Complete documentation with code examples for all features
-- [ ] **Task 4.3**: Set up CI/CD pipeline for automated testing and publishing
-  - Success Criteria: Automated tests and npm publishing on version tags
+- [ ] **Task 4.3**: Set up CI/CD pipeline for automated testing and PyPI publishing
+  - Success Criteria: Automated tests and PyPI publishing on version tags using GitHub Actions
 
 ### Phase 5: Package Publishing
 
-- [ ] **Task 5.1**: Prepare package for npm publishing (README, LICENSE, etc.)
-  - Success Criteria: Package meets npm best practices and includes all necessary files
-- [ ] **Task 5.2**: Publish to npm registry
-  - Success Criteria: Package is available on npm and can be installed
+- [ ] **Task 5.1**: Prepare package for PyPI publishing (README, LICENSE, etc.)
+  - Success Criteria: Package meets PyPI best practices and includes all necessary files
+- [ ] **Task 5.2**: Publish to PyPI registry
+  - Success Criteria: Package is available on PyPI and can be installed via pip
 - [ ] **Task 5.3**: Create example projects demonstrating SDK usage
-  - Success Criteria: Working examples for common use cases
+  - Success Criteria: Working Python examples for common use cases
 
 ## Project Status Board
 
 ### In Progress
 
-- Planning phase - analyzing current codebase structure
+- Planning phase - creating Python SDK development plan
 
 ### Pending
 
-- All implementation tasks pending user approval of plan
+- All Python implementation tasks pending user approval of plan
 
 ### Completed
 
-- [x] Analyzed existing codebase structure and functionality
-- [x] Identified key components and dependencies
-- [x] Created comprehensive development plan
+- [x] Analyzed existing TypeScript SDK structure and functionality
+- [x] Identified Python-specific requirements and challenges
+- [x] Created comprehensive Python development plan
 
 ## Current Status / Progress Tracking
 
-**Current Phase**: AUTHENTICATION FLOW FIXED ✅  
-**Next Milestone**: Package is ready for publishing  
+**Current Phase**: PYTHON SDK PLANNING ✅  
+**Next Milestone**: Begin Python package foundation setup  
 **Blockers**: None  
-**Implementation Timeline**: Successfully completed in 1 session
+**Implementation Timeline**: Planning completed, ready for implementation
 
-### ✅ **Authentication Flow Issue Fixed**
+## Python SDK Specific Considerations
 
-**Issue Identified**: The `createMarketOrderWithSimulation` method was using undefined variables `sessionKey` and `walletAddress` instead of the stored instance variables.
+### Key Python Libraries Required
+
+1. **HTTP Clients**:
+   - `requests` for synchronous HTTP operations
+   - `aiohttp` for asynchronous HTTP operations
+2. **Cryptography**:
+   - `eth-account` for EIP-712 signing and wallet operations
+   - `web3` for Ethereum utilities and type conversions
+3. **Type Safety**:
+   - `typing` and `typing_extensions` for comprehensive type hints
+   - `pydantic` for data validation and serialization
+4. **Utilities**:
+   - `decimal` for precise financial calculations
+   - `dataclasses` or `pydantic` for structured data models
+
+### Python Package Structure
+
+```
+polynomial_py/
+├── __init__.py              # Main exports
+├── sdk.py                   # Main PolynomialSDK class
+├── config/
+│   ├── __init__.py
+│   └── networks.py          # Network configurations
+├── core/
+│   ├── __init__.py
+│   ├── accounts.py          # Account management
+│   ├── markets.py           # Market data operations
+│   ├── orders.py            # Order management
+│   └── http_client.py       # HTTP client abstraction
+├── types/
+│   ├── __init__.py
+│   ├── models.py            # Data models using pydantic
+│   └── enums.py             # Enumerations
+├── utils/
+│   ├── __init__.py
+│   ├── calculations.py      # Price and unit calculations
+│   ├── validation.py        # Input validation
+│   └── signing.py           # EIP-712 signing utilities
+└── exceptions/
+    ├── __init__.py
+    └── errors.py            # Custom exception classes
+```
+
+### API Design Patterns
+
+```python
+# Synchronous usage
+from polynomial_py import PolynomialSDK
+
+sdk = PolynomialSDK.create(
+    api_key="your-api-key",
+    session_key="0x1234...",
+    wallet_address="0x742d35..."
+)
+
+# Get market data
+eth_market = sdk.markets.get_market_by_symbol("ETH")
+
+# Create order
+result = sdk.create_order(
+    market_id=eth_market.market_id,
+    size=sdk.utils.parse_units("0.1"),
+    is_long=True
+)
+```
+
+```python
+# Asynchronous usage
+from polynomial_py import AsyncPolynomialSDK
+
+async def main():
+    sdk = await AsyncPolynomialSDK.create(
+        api_key="your-api-key",
+        session_key="0x1234...",
+        wallet_address="0x742d35..."
+    )
+
+    # Get market data
+    eth_market = await sdk.markets.get_market_by_symbol("ETH")
+
+    # Create order
+    result = await sdk.create_order(
+        market_id=eth_market.market_id,
+        size=sdk.utils.parse_units("0.1"),
+        is_long=True
+    )
+```
+
+## Multi-Language SDK Maintenance Strategy
+
+### **Best Approaches for Maintaining Both npm and pip Packages**
+
+#### **Option 1: Monorepo Approach (Recommended)**
+
+**Structure:**
+
+```
+polynomial-sdk/
+├── packages/
+│   ├── typescript/          # npm package (polynomialfi)
+│   │   ├── src/
+│   │   ├── package.json
+│   │   └── tsconfig.json
+│   └── python/              # pip package (polynomial-py)
+│       ├── polynomial_py/
+│       ├── pyproject.toml
+│       └── setup.py
+├── shared/
+│   ├── api-specs/           # OpenAPI/JSON schemas
+│   ├── test-data/           # Shared test fixtures
+│   └── docs/                # Shared documentation
+├── tools/
+│   ├── codegen/             # Code generation scripts
+│   └── sync/                # Sync utilities
+└── .github/
+    └── workflows/           # CI/CD for both packages
+```
+
+**Benefits:**
+
+- ✅ Single source of truth for API specifications
+- ✅ Shared documentation and examples
+- ✅ Coordinated releases and versioning
+- ✅ Shared CI/CD pipeline
+- ✅ Easier to keep both packages in sync
+
+#### **Option 2: Schema-First Development**
+
+**Approach:**
+
+1. **Define API Schema**: Use OpenAPI/JSON Schema to define all API interfaces
+2. **Code Generation**: Generate TypeScript types and Python models from schemas
+3. **Shared Test Suite**: Use the same test cases for both implementations
+4. **Version Synchronization**: Keep version numbers aligned
+
+**Implementation:**
+
+```yaml
+# .github/workflows/sync-packages.yml
+name: Sync Packages
+on:
+  push:
+    paths: ["shared/api-specs/**"]
+jobs:
+  generate-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate TypeScript types
+        run: npm run codegen:typescript
+      - name: Generate Python models
+        run: python scripts/codegen_python.py
+      - name: Run tests for both packages
+        run: |
+          cd packages/typescript && npm test
+          cd packages/python && pytest
+```
+
+#### **Option 3: Feature Parity Matrix**
+
+**Tracking System:**
+
+```markdown
+| Feature            | TypeScript | Python    | Status           |
+| ------------------ | ---------- | --------- | ---------------- |
+| Market Data        | ✅ v1.2.0  | ✅ v1.2.0 | ✅ Synced        |
+| Order Creation     | ✅ v1.3.0  | 🔄 v1.2.0 | ⚠️ Python behind |
+| Account Management | ✅ v1.3.0  | ✅ v1.3.0 | ✅ Synced        |
+```
+
+### **Recommended Implementation Strategy**
+
+#### **Phase 1: Repository Restructure**
+
+- [ ] **Task 1.1**: Convert current repo to monorepo structure
+  - Success Criteria: Both packages coexist in single repository
+- [ ] **Task 1.2**: Set up shared API specifications using OpenAPI
+  - Success Criteria: Single source of truth for all API interfaces
+- [ ] **Task 1.3**: Create shared documentation system
+  - Success Criteria: Documentation covers both packages with language-specific examples
+
+#### **Phase 2: Development Workflow**
+
+- [ ] **Task 2.1**: Implement code generation pipeline
+  - Success Criteria: Types/models generated automatically from schemas
+- [ ] **Task 2.2**: Set up synchronized testing
+  - Success Criteria: Same test scenarios run against both implementations
+- [ ] **Task 2.3**: Create release coordination system
+  - Success Criteria: Both packages can be released together with aligned versions
+
+#### **Phase 3: Maintenance Automation**
+
+- [ ] **Task 3.1**: Set up automated dependency updates
+  - Success Criteria: Dependencies updated across both packages simultaneously
+- [ ] **Task 3.2**: Implement feature parity checking
+  - Success Criteria: Automated checks ensure both packages have same features
+- [ ] **Task 3.3**: Create cross-language integration tests
+  - Success Criteria: Tests verify both packages work with same API endpoints
+
+### **Development Workflow**
+
+```mermaid
+graph TD
+    A[API Change] --> B[Update OpenAPI Schema]
+    B --> C[Generate TypeScript Types]
+    B --> D[Generate Python Models]
+    C --> E[Update TypeScript Implementation]
+    D --> F[Update Python Implementation]
+    E --> G[TypeScript Tests]
+    F --> H[Python Tests]
+    G --> I[Integration Tests]
+    H --> I
+    I --> J[Release Both Packages]
+```
+
+### **Versioning Strategy**
+
+1. **Semantic Versioning**: Both packages follow same version numbers
+2. **Feature Flags**: Use feature flags for gradual rollouts
+3. **Compatibility Matrix**: Maintain compatibility between versions
+
+```json
+{
+  "polynomial-sdk": {
+    "typescript": "1.3.0",
+    "python": "1.3.0",
+    "api-compatibility": "v2",
+    "features": {
+      "market-data": "stable",
+      "order-creation": "stable",
+      "async-support": "beta"
+    }
+  }
+}
+```
+
+### **Documentation Strategy**
+
+1. **Unified Documentation**: Single docs site with language tabs
+2. **Code Examples**: Same examples in both TypeScript and Python
+3. **Migration Guides**: Help users switch between languages
+
+````markdown
+## Creating an Order
+
+<Tabs>
+<Tab label="TypeScript">
+```typescript
+const result = await sdk.createOrder(marketId, parseUnits("0.1"));
+````
+
+</Tab>
+<Tab label="Python">
+```python
+result = await sdk.create_order(market_id, parse_units("0.1"))
+```
+</Tab>
+</Tabs>
+```
+
+### ✅ **TypeScript SDK Successfully Completed**
 
 **Problem Details**:
 

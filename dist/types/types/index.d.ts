@@ -166,4 +166,39 @@ export interface MarketFilters {
     symbol?: string;
     marketId?: string;
 }
+/**
+ * ============================
+ * Margin-Related Interfaces
+ * ============================
+ */
+/**
+ * Safe withdrawable collateral amount for a specific synth market
+ */
+export interface ISafeWithdrawableCollateralAmount {
+    synthMarketId: string;
+    amount: string;
+    allowFullWithdrawal: boolean;
+}
+/**
+ * Complete margin information for an account
+ */
+export interface IMarginInfo {
+    chainId: number;
+    accountId: string;
+    debt: string;
+    availableMargin: string;
+    requiredInitialMargin: string;
+    requiredMaintenanceMargin: string;
+    maxLiquidationReward: string;
+    withdrawableMargin: string;
+    safeWithdrawableMargin: string;
+    safeWithdrawableCollateralAmounts: ISafeWithdrawableCollateralAmount[];
+}
+/**
+ * Simplified margin information returned by getMarginInfo()
+ */
+export interface IMarginInfoSummary {
+    availableMargin: string;
+    requiredMaintenanceMargin: string;
+}
 //# sourceMappingURL=index.d.ts.map

@@ -192,5 +192,36 @@ export class Accounts {
             throw new AccountError(`Failed to fetch account summary: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress: this.walletAddress, accountId: this.getAccountId() });
         }
     }
+    /**
+     * Gets margin information for a specific wallet address
+     */
+    async getMarginInfo(walletAddress) {
+        if (!isValidAddress(walletAddress)) {
+            throw new ValidationError("Invalid wallet address format", {
+                walletAddress,
+            });
+        }
+        try {
+            const response = await this.httpClient.get(`margins/all-margins?owner=${walletAddress}&ownershipType=SuperOwner&chainIds=${this.chainId}`);
+            console.log(JSON.stringify(response));
+            const marginData = response.find((item) => item.chainId === this.chainId);
+            if (!marginData) {
+                throw new AccountError(`No margin information found for wallet ${walletAddress} on chain ${this.chainId}`, { walletAddress, chainId: this.chainId });
+            }
+            return {
+                availableMargin: marginData.availableMargin,
+                requiredMaintenanceMargin: marginData.requiredMaintenanceMargin,
+            };
+        }
+        catch (error) {
+            throw new AccountError(`Failed to fetch margin information for wallet ${walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets margin information for the stored account
+     */
+    async getMyMarginInfo() {
+        return this.getMarginInfo(this.walletAddress);
+    }
 }
 //# sourceMappingURL=accounts.js.map

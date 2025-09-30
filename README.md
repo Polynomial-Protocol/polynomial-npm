@@ -278,6 +278,34 @@ const summary = await sdk.accounts.getMyAccountSummary();
 console.log(`Total Positions: ${summary.totalPositions}`);
 ```
 
+#### `sdk.accounts.getMarginInfo(walletAddress)`
+
+Gets margin information for a specific wallet address.
+
+**Parameters:**
+
+- `walletAddress` - Wallet address
+
+**Returns:** `Promise<IMarginInfoSummary>`
+
+```typescript
+const marginInfo = await sdk.accounts.getMarginInfo("0x742d35...");
+console.log(`Available Margin: ${marginInfo.availableMargin}`);
+console.log(`Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+```
+
+#### `sdk.accounts.getMyMarginInfo()`
+
+Gets margin information for the stored account (uses stored wallet address).
+
+**Returns:** `Promise<IMarginInfoSummary>`
+
+```typescript
+const marginInfo = await sdk.accounts.getMyMarginInfo();
+console.log(`Available Margin: ${marginInfo.availableMargin}`);
+console.log(`Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+```
+
 #### `sdk.accounts.getPositionByMarket(walletAddress, marketId)`
 
 Gets a specific position for a market.
@@ -433,6 +461,18 @@ Gets market data, optionally filtered by symbol.
 ```typescript
 const ethData = await sdk.getMarketData("ETH");
 const allMarkets = await sdk.getMarketData();
+```
+
+#### `sdk.getMarginInfo()`
+
+Gets margin information for the wallet address provided during SDK initialization.
+
+**Returns:** `Promise<IMarginInfoSummary>`
+
+```typescript
+const marginInfo = await sdk.getMarginInfo();
+console.log(`Available Margin: ${marginInfo.availableMargin}`);
+console.log(`Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
 ```
 
 ## 🛠️ Utilities

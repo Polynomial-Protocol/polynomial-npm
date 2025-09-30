@@ -208,5 +208,16 @@ export class PolynomialSDK {
         }
         return await this.markets.getMarkets();
     }
+    /**
+     * Convenience method to get margin information for the stored account
+     * Uses the walletAddress provided during SDK initialization
+     */
+    async getMarginInfo() {
+        // Validate that wallet address is available
+        if (!this.walletAddress) {
+            throw new ValidationError("Wallet address is required for margin operations. Please provide walletAddress when creating the SDK instance.", { operation: "margin_info" });
+        }
+        return await this.accounts.getMyMarginInfo();
+    }
 }
 //# sourceMappingURL=sdk.js.map

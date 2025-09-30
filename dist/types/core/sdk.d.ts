@@ -69,6 +69,11 @@ export declare class PolynomialSDK {
      * Convenience method to get market data with statistics
      */
     getMarketData(symbol?: string): Promise<import("../types").IMarkets[] | Partial<import("../types").IMarkets> | null>;
+    /**
+     * Convenience method to get margin information for the stored account
+     * Uses the walletAddress provided during SDK initialization
+     */
+    getMarginInfo(): Promise<import("../types").IMarginInfoSummary>;
 }
 export {};
 //# sourceMappingURL=sdk.d.ts.map

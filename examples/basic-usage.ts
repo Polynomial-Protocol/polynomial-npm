@@ -85,6 +85,12 @@ async function runExample(): Promise<void> {
     const accountSummary = await sdk.accounts.getMyAccountSummary();
     console.log("Account fetched", accountSummary);
 
+    // Step 3.5: Get margin information
+    console.log("📊 Fetching margin information...");
+    const marginInfo = await sdk.accounts.getMyMarginInfo();
+    console.log(`💰 Available Margin: ${marginInfo.availableMargin}`);
+    console.log(`⚠️  Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+
     // Step 4: Create a simple market order using stored credentials
     console.log(
       `📝 Creating market order for 0.001 ${selectedMarket.symbol}...`

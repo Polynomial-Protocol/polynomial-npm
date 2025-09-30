@@ -1,5 +1,5 @@
 import { HttpClient } from "./http";
-import { IAccountAPIResponse, IPosition } from "../types";
+import { IAccountAPIResponse, IPosition, IMarginInfoSummary } from "../types";
 /**
  * Accounts module for handling account management operations
  */
@@ -57,5 +57,13 @@ export declare class Accounts {
         totalUnrealizedPnl: string;
         totalRealizedPnl: string;
     }>;
+    /**
+     * Gets margin information for a specific wallet address
+     */
+    getMarginInfo(walletAddress: string): Promise<IMarginInfoSummary>;
+    /**
+     * Gets margin information for the stored account
+     */
+    getMyMarginInfo(): Promise<IMarginInfoSummary>;
 }
 //# sourceMappingURL=accounts.d.ts.map
