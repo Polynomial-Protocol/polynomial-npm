@@ -16,10 +16,15 @@ export declare class PolynomialSDK {
     private readonly orderbookClient;
     private readonly walletAddress;
     private readonly sessionKey;
+    private readonly accountId;
     readonly markets: Markets;
     readonly accounts: Accounts;
     readonly orders: Orders;
     constructor(config: SDKConfig);
+    /**
+     * Gets the derived account ID
+     */
+    private getAccountId;
     /**
      * Creates a new SDK instance with the provided configuration
      */

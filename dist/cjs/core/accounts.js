@@ -7,9 +7,11 @@ const utils_1 = require("../utils");
  * Accounts module for handling account management operations
  */
 class Accounts {
-    constructor(httpClient, chainId) {
+    constructor(httpClient, chainId, walletAddress, getAccountId) {
         this.httpClient = httpClient;
         this.chainId = chainId;
+        this.walletAddress = walletAddress;
+        this.getAccountId = getAccountId;
     }
     /**
      * Fetches account information for a given wallet address
@@ -125,6 +127,73 @@ class Accounts {
         }
         catch (error) {
             throw new errors_1.AccountError(`Failed to fetch accounts for wallet ${walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets all positions for the stored account using derived account ID
+     */
+    async getMyPositions() {
+        const accountId = this.getAccountId();
+        try {
+            const response = await this.httpClient.get(`positions/v2?accountId=${accountId}&chainId=${this.chainId}`);
+            return response.positions || [];
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch positions for account ${accountId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets a specific position by market ID for the stored account
+     */
+    async getMyPositionByMarket(marketId) {
+        try {
+            const positions = await this.getMyPositions();
+            return (positions.find((position) => position.marketId === marketId) || null);
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch position for market ${marketId}: ${error instanceof Error ? error.message : "Unknown error"}`, { accountId: this.getAccountId(), marketId });
+        }
+    }
+    /**
+     * Gets account summary for the stored account
+     */
+    async getMyAccountSummary() {
+        try {
+            // Get account by wallet address (this still uses wallet address as it's the lookup key)
+            const account = await this.getAccount(this.walletAddress);
+            if (!account) {
+                throw new errors_1.AccountError(`Account not found for wallet: ${this.walletAddress}`, {
+                    walletAddress: this.walletAddress,
+                });
+            }
+            // Get positions using the derived account ID
+            const positions = await this.getMyPositions();
+            // Calculate totals
+            const totalUnrealizedPnl = positions
+                .reduce((sum, pos) => {
+                const unrealizedPnl = parseFloat(pos.totalRealisedPnlUsd || "0");
+                return sum + unrealizedPnl;
+            }, 0)
+                .toFixed(2);
+            const totalRealizedPnl = positions
+                .reduce((sum, pos) => {
+                const realizedPnl = parseFloat(pos.totalRealisedPnlUsd || "0");
+                return sum + realizedPnl;
+            }, 0)
+                .toFixed(2);
+            return {
+                account,
+                positions,
+                totalPositions: positions.length,
+                totalUnrealizedPnl,
+                totalRealizedPnl,
+            };
+        }
+        catch (error) {
+            if (error instanceof errors_1.AccountError) {
+                throw error;
+            }
+            throw new errors_1.AccountError(`Failed to fetch account summary: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress: this.walletAddress, accountId: this.getAccountId() });
         }
     }
 }

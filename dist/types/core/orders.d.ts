@@ -8,7 +8,10 @@ export declare class Orders {
     private readonly httpClient;
     private readonly orderbookClient;
     private readonly networkConfig;
-    constructor(httpClient: HttpClient, orderbookClient: HttpClient, networkConfig: NetworkConfig);
+    private readonly sessionKey;
+    private readonly walletAddress;
+    private readonly getAccountId;
+    constructor(httpClient: HttpClient, orderbookClient: HttpClient, networkConfig: NetworkConfig, sessionKey: string, walletAddress: string, getAccountId: () => string);
     /**
      * Fetches current market price for a given market ID
      */
@@ -22,14 +25,14 @@ export declare class Orders {
      */
     private submitMarketOrder;
     /**
-     * Creates and submits a market order
+     * Creates and submits a market order using stored credentials
      */
-    createMarketOrder(sessionKey: string, walletAddress: string, accountId: string, params: OrderParams, defaultSlippage?: bigint): Promise<any>;
+    createMarketOrder(params: OrderParams, defaultSlippage?: bigint): Promise<any>;
     /**
      * Creates a simple market order with minimal parameters
      * All other values will be calculated automatically or use defaults
      */
-    createOrder(sessionKey: string, walletAddress: string, accountId: string, marketId: string, size: bigint, options?: {
+    createOrder(marketId: string, size: bigint, options?: {
         isLong?: boolean;
         acceptablePrice?: bigint;
         reduceOnly?: boolean;
@@ -38,11 +41,11 @@ export declare class Orders {
     /**
      * Creates a long position market order
      */
-    createLongOrder(sessionKey: string, walletAddress: string, accountId: string, marketId: string, size: bigint, acceptablePrice?: bigint, reduceOnly?: boolean): Promise<any>;
+    createLongOrder(marketId: string, size: bigint, acceptablePrice?: bigint, reduceOnly?: boolean): Promise<any>;
     /**
      * Creates a short position market order
      */
-    createShortOrder(sessionKey: string, walletAddress: string, accountId: string, marketId: string, size: bigint, acceptablePrice?: bigint, reduceOnly?: boolean): Promise<any>;
+    createShortOrder(marketId: string, size: bigint, acceptablePrice?: bigint, reduceOnly?: boolean): Promise<any>;
     /**
      * Helper method to calculate acceptable price with slippage
      */

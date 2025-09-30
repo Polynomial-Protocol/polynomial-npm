@@ -6,7 +6,9 @@ import { IAccountAPIResponse, IPosition } from "../types";
 export declare class Accounts {
     private readonly httpClient;
     private readonly chainId;
-    constructor(httpClient: HttpClient, chainId: number);
+    private readonly walletAddress;
+    private readonly getAccountId;
+    constructor(httpClient: HttpClient, chainId: number, walletAddress: string, getAccountId: () => string);
     /**
      * Fetches account information for a given wallet address
      */
@@ -37,5 +39,23 @@ export declare class Accounts {
      * Gets all accounts owned by a wallet address
      */
     getAllAccountsForWallet(walletAddress: string): Promise<IAccountAPIResponse[]>;
+    /**
+     * Gets all positions for the stored account using derived account ID
+     */
+    getMyPositions(): Promise<IPosition[]>;
+    /**
+     * Gets a specific position by market ID for the stored account
+     */
+    getMyPositionByMarket(marketId: string): Promise<IPosition | null>;
+    /**
+     * Gets account summary for the stored account
+     */
+    getMyAccountSummary(): Promise<{
+        account: IAccountAPIResponse;
+        positions: IPosition[];
+        totalPositions: number;
+        totalUnrealizedPnl: string;
+        totalRealizedPnl: string;
+    }>;
 }
 //# sourceMappingURL=accounts.d.ts.map

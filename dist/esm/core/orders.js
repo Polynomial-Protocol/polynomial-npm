@@ -1,14 +1,17 @@
 import { privateKeyToAccount } from "viem/accounts";
 import { OrderError, ValidationError, SigningError } from "../errors";
-import { isValidPrivateKey, isValidAddress, generateNonce, getWeekFromNowTimestamp, calculateAcceptablePrice, parseUnits, } from "../utils";
+import { isValidPrivateKey, generateNonce, getWeekFromNowTimestamp, calculateAcceptablePrice, parseUnits, } from "../utils";
 /**
  * Orders module for handling order creation and submission
  */
 export class Orders {
-    constructor(httpClient, orderbookClient, networkConfig) {
+    constructor(httpClient, orderbookClient, networkConfig, sessionKey, walletAddress, getAccountId) {
         this.httpClient = httpClient;
         this.orderbookClient = orderbookClient;
         this.networkConfig = networkConfig;
+        this.sessionKey = sessionKey;
+        this.walletAddress = walletAddress;
+        this.getAccountId = getAccountId;
     }
     /**
      * Fetches current market price for a given market ID
@@ -106,20 +109,11 @@ export class Orders {
         }
     }
     /**
-     * Creates and submits a market order
+     * Creates and submits a market order using stored credentials
      */
-    async createMarketOrder(sessionKey, walletAddress, accountId, params, defaultSlippage = 10n) {
-        // Validation
-        if (!isValidPrivateKey(sessionKey)) {
-            throw new ValidationError("Invalid session key format", {
-                sessionKey: "REDACTED",
-            });
-        }
-        if (!isValidAddress(walletAddress)) {
-            throw new ValidationError("Invalid wallet address format", {
-                walletAddress,
-            });
-        }
+    async createMarketOrder(params, defaultSlippage = 10n) {
+        // Get account ID from stored credentials
+        const accountId = this.getAccountId();
         const { marketId, size, isLong = true, // Default to long position
         acceptablePrice, reduceOnly = false, slippagePercentage, } = params;
         try {
@@ -147,11 +141,11 @@ export class Orders {
                 expiration: getWeekFromNowTimestamp().toString(),
                 nonce: generateNonce(),
                 chainId: this.networkConfig.chainId,
-                eoa: walletAddress,
+                eoa: this.walletAddress,
                 reduceOnly,
             };
             // Sign the order
-            const signature = await this.signMarketOrder(sessionKey, orderToSign);
+            const signature = await this.signMarketOrder(this.sessionKey, orderToSign);
             // Create the market order request
             const marketOrderRequest = {
                 acceptablePrice: orderToSign.acceptablePrice,
@@ -178,15 +172,21 @@ export class Orders {
                 error instanceof SigningError) {
                 throw error;
             }
-            throw new OrderError(`Failed to create market order: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, accountId, size: size.toString(), isLong });
+            throw new OrderError(`Failed to create market order: ${error instanceof Error ? error.message : "Unknown error"}`, {
+                marketId,
+                accountId,
+                size: size.toString(),
+                isLong,
+                walletAddress: this.walletAddress,
+            });
         }
     }
     /**
      * Creates a simple market order with minimal parameters
      * All other values will be calculated automatically or use defaults
      */
-    async createOrder(sessionKey, walletAddress, accountId, marketId, size, options) {
-        return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+    async createOrder(marketId, size, options) {
+        return this.createMarketOrder({
             marketId,
             size,
             ...options,
@@ -195,8 +195,8 @@ export class Orders {
     /**
      * Creates a long position market order
      */
-    async createLongOrder(sessionKey, walletAddress, accountId, marketId, size, acceptablePrice, reduceOnly = false) {
-        return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+    async createLongOrder(marketId, size, acceptablePrice, reduceOnly = false) {
+        return this.createMarketOrder({
             marketId,
             size,
             isLong: true,
@@ -207,8 +207,8 @@ export class Orders {
     /**
      * Creates a short position market order
      */
-    async createShortOrder(sessionKey, walletAddress, accountId, marketId, size, acceptablePrice, reduceOnly = false) {
-        return this.createMarketOrder(sessionKey, walletAddress, accountId, {
+    async createShortOrder(marketId, size, acceptablePrice, reduceOnly = false) {
+        return this.createMarketOrder({
             marketId,
             size,
             isLong: false,

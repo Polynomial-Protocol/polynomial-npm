@@ -4,7 +4,7 @@ import { Accounts } from "./accounts";
 import { Orders } from "./orders";
 import { ConfigurationError, ValidationError } from "../errors";
 import { NETWORKS } from "../config";
-import { isValidAddress } from "../utils";
+import { isValidAddress, deriveAccountId } from "../utils";
 /**
  * Main Polynomial SDK class
  */
@@ -40,10 +40,7 @@ export class PolynomialSDK {
                 walletAddress: config.walletAddress,
             });
         }
-        // Store authentication credentials
-        this.walletAddress = config.walletAddress;
-        this.sessionKey = config.sessionKey;
-        // Set up configuration with defaults
+        // Set up configuration with defaults first
         this.config = {
             chainId: config.chainId || 8008,
             apiEndpoint: config.apiEndpoint || NETWORKS.mainnet.apiEndpoint,
@@ -54,6 +51,11 @@ export class PolynomialSDK {
             walletAddress: config.walletAddress,
             sessionKey: config.sessionKey,
         };
+        // Store authentication credentials
+        this.walletAddress = config.walletAddress;
+        this.sessionKey = config.sessionKey;
+        // Derive account ID from wallet address and chain ID
+        this.accountId = deriveAccountId(this.walletAddress, this.config.chainId);
         // Get network configuration
         const networkKey = Object.keys(NETWORKS).find((key) => NETWORKS[key].chainId === this.config.chainId);
         if (networkKey) {
@@ -74,8 +76,14 @@ export class PolynomialSDK {
         this.orderbookClient = new HttpClient(this.config.orderbookEndpoint, this.config.apiKey);
         // Initialize modules
         this.markets = new Markets(this.httpClient, this.config.chainId);
-        this.accounts = new Accounts(this.httpClient, this.config.chainId);
-        this.orders = new Orders(this.httpClient, this.orderbookClient, this.networkConfig);
+        this.accounts = new Accounts(this.httpClient, this.config.chainId, this.walletAddress, () => this.getAccountId());
+        this.orders = new Orders(this.httpClient, this.orderbookClient, this.networkConfig, this.sessionKey, this.walletAddress, () => this.getAccountId());
+    }
+    /**
+     * Gets the derived account ID
+     */
+    getAccountId() {
+        return this.accountId;
     }
     /**
      * Creates a new SDK instance with the provided configuration
@@ -112,13 +120,8 @@ export class PolynomialSDK {
      */
     async createOrder(marketId, size, options) {
         try {
-            // Get account using stored wallet address
-            const account = await this.accounts.getAccount(this.walletAddress);
-            if (!account) {
-                throw new ValidationError(`No account found for wallet address: ${this.walletAddress}`, { walletAddress: this.walletAddress });
-            }
-            // Create the order using the Orders module with stored credentials
-            return await this.orders.createOrder(this.sessionKey, this.walletAddress, account.accountId, marketId, size, options);
+            // Create the order using the Orders module with stored credentials (including account ID)
+            return await this.orders.createOrder(marketId, size, options);
         }
         catch (error) {
             if (error instanceof ValidationError) {
