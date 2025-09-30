@@ -368,6 +368,242 @@ result = await sdk.create_order(market_id, parse_units("0.1"))
 </Tabs>
 ```
 
+## Documentation Restructuring Plan
+
+### **Current State Analysis**
+
+The current README.md is **876 lines** and contains:
+
+- 17 main sections
+- 29 subsections
+- Mixed content: installation, API docs, examples, development, etc.
+- Overwhelming for new developers
+
+### **Proposed Documentation Structure**
+
+#### **1. Main README.md (Simplified - ~150 lines)**
+
+```
+# Polynomial SDK
+
+## Quick Start
+- Installation
+- Basic usage example
+- Links to detailed docs
+
+## Core Features
+- Brief feature list
+- Architecture overview
+
+## Documentation
+- [Accounts API](./docs/accounts.md)
+- [Orders API](./docs/orders.md)
+- [Markets API](./docs/markets.md)
+- [Utilities](./docs/utilities.md)
+- [Error Handling](./docs/errors.md)
+- [Examples](./docs/examples.md)
+
+## Development
+- [Contributing](./docs/contributing.md)
+- [Development Setup](./docs/development.md)
+
+## Support
+- Links to Discord, GitHub, etc.
+```
+
+#### **2. docs/accounts.md (Focused on Accounts class)**
+
+```
+# Accounts API
+
+## Overview
+- Account management
+- Position tracking
+- Margin information
+
+## Methods
+- getAccount()
+- getPositions()
+- getAccountSummary()
+- getMarginInfo()
+- getMaxPossibleTradeSizes()
+
+## Examples
+- Account setup
+- Position management
+- Margin checking
+```
+
+#### **3. docs/orders.md (Focused on Orders class)**
+
+```
+# Orders API
+
+## Overview
+- Order creation
+- Order signing
+- Order submission
+
+## Methods
+- createMarketOrder()
+- createLongOrder()
+- createShortOrder()
+
+## Examples
+- Basic order creation
+- Advanced order options
+- Error handling
+```
+
+#### **4. docs/markets.md (Focused on Markets class)**
+
+```
+# Markets API
+
+## Overview
+- Market data fetching
+- Market statistics
+- Price information
+
+## Methods
+- getMarkets()
+- getMarketBySymbol()
+- getMarketStats()
+
+## Examples
+- Market data retrieval
+- Price monitoring
+```
+
+#### **5. docs/utilities.md (Utility functions)**
+
+```
+# Utilities
+
+## Unit Conversion
+- parseUnits()
+- formatUnits()
+
+## Price Calculations
+- calculateAcceptablePrice()
+
+## Validation
+- isValidAddress()
+- generateNonce()
+```
+
+#### **6. docs/errors.md (Error handling)**
+
+```
+# Error Handling
+
+## Error Types
+- APIError
+- ValidationError
+- OrderError
+- AccountError
+- MarketError
+- NetworkError
+- ConfigurationError
+- SigningError
+
+## Error Handling Patterns
+- Try-catch examples
+- Error context
+```
+
+#### **7. docs/examples.md (Comprehensive examples)**
+
+```
+# Examples
+
+## Basic Usage
+- SDK initialization
+- Simple trading
+
+## Advanced Examples
+- Portfolio management
+- Risk management
+- Automated trading
+
+## Integration Examples
+- Web3 integration
+- React integration
+```
+
+#### **8. docs/development.md (Development info)**
+
+```
+# Development
+
+## Setup
+- Installation
+- Configuration
+- Environment setup
+
+## Building
+- Build commands
+- Testing
+- Linting
+
+## Contributing
+- Code style
+- Pull request process
+```
+
+### **Benefits of This Structure**
+
+1. **🎯 Focused**: Each doc focuses on one aspect
+2. **📖 Navigable**: Easy to find specific information
+3. **🚀 Onboarding**: New developers aren't overwhelmed
+4. **🔧 Maintainable**: Easier to update specific sections
+5. **📱 Mobile-friendly**: Shorter pages load faster
+6. **🔍 Searchable**: Better for documentation search
+
+### **Implementation Plan**
+
+#### **Phase 1: Create Documentation Structure**
+
+- [ ] Create `docs/` directory
+- [ ] Create individual documentation files
+- [ ] Move content from main README to focused docs
+
+#### **Phase 2: Simplify Main README**
+
+- [ ] Reduce main README to essential information only
+- [ ] Add navigation links to detailed docs
+- [ ] Keep only quick start and overview
+
+#### **Phase 3: Enhance Documentation**
+
+- [ ] Add cross-references between docs
+- [ ] Improve examples in each focused doc
+- [ ] Add table of contents to each doc
+
+#### **Phase 4: Testing & Validation**
+
+- [ ] Test all links work correctly
+- [ ] Ensure all information is accessible
+- [ ] Validate documentation completeness
+
+### **File Structure**
+
+```
+polynomial-sdk/
+├── README.md (simplified)
+├── docs/
+│   ├── accounts.md
+│   ├── orders.md
+│   ├── markets.md
+│   ├── utilities.md
+│   ├── errors.md
+│   ├── examples.md
+│   ├── development.md
+│   └── contributing.md
+└── examples/
+    └── basic-usage.ts
+```
+
 ### ✅ **TypeScript SDK Successfully Completed**
 
 **Problem Details**:
