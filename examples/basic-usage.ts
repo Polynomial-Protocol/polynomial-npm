@@ -10,9 +10,10 @@
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
 // Required configuration - update these values with your actual credentials
-const API_KEY = ""; // Your Polynomial API key
-const SESSION_KEY = ""; // Your session key for signing orders
-const WALLET_ADDRESS = ""; // Your wallet address
+const API_KEY = "q7k9z2m1v4r8x0b5n6c3s1h9t2y4w8a1"; // Your Polynomial API key
+const SESSION_KEY =
+  "0xaed8638a12731fc71302f7256df5adce68e0a9784ae11dd628b7453d762f62fb"; // Your session key for signing orders
+const WALLET_ADDRESS = "0x3d6C731daCFD0d259fadC5124a7C14f4F544F2DC"; // Your wallet address
 
 async function runExample(): Promise<void> {
   // Validate required configuration values

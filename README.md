@@ -242,7 +242,7 @@ console.log(`Found ${positions.length} positions`);
 
 #### `sdk.accounts.getMyPositions()`
 
-Gets all open positions for the stored account (uses derived account ID).
+Gets all open positions for the stored account (uses stored wallet address).
 
 **Returns:** `Promise<IPosition[]>`
 
@@ -268,7 +268,7 @@ console.log(`Total Positions: ${summary.totalPositions}`);
 
 #### `sdk.accounts.getMyAccountSummary()`
 
-Gets comprehensive account summary for the stored account (uses derived account ID).
+Gets comprehensive account summary for the stored account (uses stored wallet address).
 
 **Returns:** `Promise<AccountSummary>`
 
@@ -321,7 +321,7 @@ Creates, signs, and submits a market order using the stored credentials from SDK
 
 **Returns:** `Promise<OrderResult>`
 
-**Note:** This method uses the sessionKey, walletAddress, and accountId from SDK initialization. For the simplest API, use `sdk.createOrder()`.
+**Note:** This method uses the sessionKey, walletAddress, and derived accountId from SDK initialization. For the simplest API, use `sdk.createOrder()`.
 
 ```typescript
 const result = await sdk.orders.createMarketOrder({

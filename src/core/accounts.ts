@@ -202,22 +202,21 @@ export class Accounts {
   }
 
   /**
-   * Gets all positions for the stored account using derived account ID
+   * Gets all positions for the stored account using wallet address
    */
   async getMyPositions(): Promise<IPosition[]> {
-    const accountId = this.getAccountId();
     try {
       const response = await this.httpClient.get<IPositionDataReceived>(
-        `positions/v2?accountId=${accountId}&chainId=${this.chainId}`
+        `positions/v2?offset=0&limit=0&owner=${this.walletAddress}&ownershipType=SuperOwner&chainIds=${this.chainId}`
       );
 
       return response.positions || [];
     } catch (error) {
       throw new AccountError(
-        `Failed to fetch positions for account ${accountId}: ${
+        `Failed to fetch positions for wallet ${this.walletAddress}: ${
           error instanceof Error ? error.message : "Unknown error"
         }`,
-        { accountId, chainId: this.chainId }
+        { walletAddress: this.walletAddress, chainId: this.chainId }
       );
     }
   }

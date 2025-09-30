@@ -5,7 +5,11 @@
   "main": "basic-usage.ts",
   "scripts": {
     "start": "npx ts-node -P ./tsconfig.json basic-usage.ts",
-    "dev": "nodemon --exec \"npx ts-node -P ./tsconfig.json\" basic-usage.ts"
+    "dev": "nodemon --exec \"npx ts-node -P ./tsconfig.json\" basic-usage.ts",
+    "debug": "TS_NODE_PROJECT=./tsconfig.json node --inspect-brk -r ts-node/register basic-usage.ts",
+    "debug:watch": "TS_NODE_PROJECT=./tsconfig.json nodemon --exec \"node --inspect-brk -r ts-node/register\" basic-usage.ts",
+    "refresh": "rm -rf node_modules package-lock.json && npm install polynomialfi@latest && npm install",
+    "clean-install": "npm run refresh"
   },
   "keywords": [
     "polynomial",
@@ -19,7 +23,7 @@
   "author": "Polynomial Protocol",
   "license": "MIT",
   "dependencies": {
-    "polynomialfi": "^1.0.0"
+    "polynomialfi": "^1.0.6"
   },
   "devDependencies": {
     "@types/node": "^22.15.30",
