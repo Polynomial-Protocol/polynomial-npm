@@ -1,18 +1,31 @@
 # Polynomial SDK
 
-[![npm version](https://badge.fury.io/js/polynomialfi.svg)](https://badge.fury.io/js/polynomialfi)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-blue?style=flat&logo=discord)](https://discord.gg/polynomial)
-[![Bug Reports](https://img.shields.io/badge/Bug%20Reports-GitHub%20Issues-red?style=flat&logo=github)](https://github.com/polynomial-protocol/polynomial-sdk/issues)
+<div align="center">
 
-A comprehensive TypeScript SDK for interacting with Polynomial Perpetuals, providing easy-to-use methods for trading, account management, and market data access.
+**Official TypeScript SDK for Polynomial Perpetuals**
 
-## Features
+_Trade crypto perpetuals with ease using a production-ready, type-safe SDK_
 
-- **Trading**: Create and manage orders with built-in EIP-712 signing
-- **Account Management**: Get account information, positions, and margin data
-- **Market Data**: Access real-time market information and statistics
-- **Type Safety**: Full TypeScript support with comprehensive type definitions
-- **Error Handling**: Robust error handling with specific error types
+[![npm version](https://img.shields.io/npm/v/polynomialfi.svg)](https://www.npmjs.com/package/polynomialfi)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Chat-7289da?style=flat&logo=discord)](https://discord.gg/polynomial)
+
+[Quick Start](#quick-start) • [Documentation](#documentation) • [Support](#getting-help)
+
+</div>
+
+---
+
+## ✨ Features
+
+- 🚀 **Easy to use** - Simple, intuitive API for all trading operations
+- 🔒 **Type-safe** - Full TypeScript support with comprehensive type definitions
+- 📊 **Market data** - Real-time market information and statistics
+- 💼 **Account management** - Account and position management
+- 📝 **Order management** - Create, sign, and submit market orders
+- 🛡️ **Error handling** - Comprehensive error types and handling
+- ⚡ **High performance** - Optimized for speed with minimal dependencies
 
 ## Installation
 
