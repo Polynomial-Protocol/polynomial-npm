@@ -89,7 +89,9 @@ async function runExample(): Promise<void> {
     console.log("📊 Fetching margin information...");
     const marginInfo = await sdk.accounts.getMyMarginInfo();
     console.log(`💰 Available Margin: ${marginInfo.availableMargin}`);
-    console.log(`⚠️  Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+    console.log(
+      `⚠️  Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`
+    );
 
     // Step 4: Create a simple market order using stored credentials
     console.log(
