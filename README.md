@@ -64,13 +64,19 @@ console.log("Order created:", order.id);
 
 ## Configuration
 
-### SDK Options
+### Required Credentials
+
+| Credential        | Description                    | How to Get                                                                                 |
+| ----------------- | ------------------------------ | ------------------------------------------------------------------------------------------ |
+| **apiKey**        | API authentication (x-api-key) | Get from [Discord](https://discord.gg/polynomial)                                          |
+| **sessionKey**    | Private key for signing orders | Generate/authorize API wallets from [here](https://polynomial.fi/en/mainnet/portfolio/api) |
+| **walletAddress** | Your trading wallet address    | Your Ethereum wallet address                                                               |
 
 ```typescript
 const sdk = await PolynomialSDK.create({
-  apiKey: "your-api-key", // Required: Get x-api-key from Discord
-  sessionKey: "0x1234...", // Required: Generate/authorize API wallets from here
-  walletAddress: "0x742d35...", // Required: Your wallet address
+  apiKey: "your-api-key",
+  sessionKey: "0x1234...",
+  walletAddress: "0x742d35...",
   chainId: 8008, // Optional: Network chain ID (default: 8008)
 });
 ```
