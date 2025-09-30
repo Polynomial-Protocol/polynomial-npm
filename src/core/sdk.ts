@@ -202,7 +202,7 @@ export class PolynomialSDK {
       );
 
       const account = response.find((item) => item.chainId === chainId);
-      
+
       if (!account) {
         throw new AccountError(
           `No account found for wallet ${config.walletAddress} on chain ${chainId}. Please ensure the wallet has an active account on the Polynomial platform.`,
@@ -216,7 +216,11 @@ export class PolynomialSDK {
       // Create SDK instance with the fetched account ID
       return new PolynomialSDK(config, account.accountId);
     } catch (error) {
-      if (error instanceof AccountError || error instanceof ConfigurationError || error instanceof ValidationError) {
+      if (
+        error instanceof AccountError ||
+        error instanceof ConfigurationError ||
+        error instanceof ValidationError
+      ) {
         throw error;
       }
       throw new AccountError(
@@ -330,5 +334,21 @@ export class PolynomialSDK {
     }
 
     return await this.accounts.getMyMarginInfo();
+  }
+
+  /**
+   * Convenience method to get maximum possible trade sizes for a market
+   * Uses the walletAddress provided during SDK initialization
+   */
+  async getMaxPossibleTradeSizes(marketId: string) {
+    // Validate that wallet address is available
+    if (!this.walletAddress) {
+      throw new ValidationError(
+        "Wallet address is required for trade size operations. Please provide walletAddress when creating the SDK instance.",
+        { operation: "max_trade_sizes" }
+      );
+    }
+
+    return await this.accounts.getMyMaxPossibleTradeSizes(marketId);
   }
 }

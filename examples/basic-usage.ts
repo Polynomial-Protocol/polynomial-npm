@@ -93,6 +93,18 @@ async function runExample(): Promise<void> {
       `⚠️  Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`
     );
 
+    // Step 3.6: Get maximum possible trade sizes for the selected market
+    console.log("📏 Fetching maximum possible trade sizes...");
+    const maxTradeSizes = await sdk.getMaxPossibleTradeSizes(
+      selectedMarket.marketId
+    );
+    console.log(
+      `📈 Max Long Size: ${maxTradeSizes.maxPossibleTradeSizeForLong}`
+    );
+    console.log(
+      `📉 Max Short Size: ${maxTradeSizes.maxPossibleTradeSizeForShort}`
+    );
+
     // Step 4: Create a simple market order using stored credentials
     console.log(
       `📝 Creating market order for 0.001 ${selectedMarket.symbol}...`

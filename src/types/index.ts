@@ -218,3 +218,22 @@ export interface IMarginInfoSummary {
   availableMargin: string;
   requiredMaintenanceMargin: string;
 }
+
+/**
+ * Request payload for getting maximum possible trade sizes
+ */
+export interface IMaxTradeSizeRequest {
+  accountId: string;
+  chainId: number;
+  marketId: string;
+  addedCollaterals: any[]; // Array of additional collaterals (empty for basic request)
+}
+
+/**
+ * Response for maximum possible trade sizes
+ */
+export interface IMaxTradeSizeResponse {
+  marketId: string;
+  maxPossibleTradeSizeForLong: string;
+  maxPossibleTradeSizeForShort: string;
+}

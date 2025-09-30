@@ -291,7 +291,9 @@ Gets margin information for a specific wallet address.
 ```typescript
 const marginInfo = await sdk.accounts.getMarginInfo("0x742d35...");
 console.log(`Available Margin: ${marginInfo.availableMargin}`);
-console.log(`Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+console.log(
+  `Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`
+);
 ```
 
 #### `sdk.accounts.getMyMarginInfo()`
@@ -303,7 +305,45 @@ Gets margin information for the stored account (uses stored wallet address).
 ```typescript
 const marginInfo = await sdk.accounts.getMyMarginInfo();
 console.log(`Available Margin: ${marginInfo.availableMargin}`);
-console.log(`Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+console.log(
+  `Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`
+);
+```
+
+#### `sdk.accounts.getMaxPossibleTradeSizes(walletAddress, marketId)`
+
+Gets maximum possible trade sizes for a specific market and wallet address.
+
+**Parameters:**
+
+- `walletAddress` - Wallet address
+- `marketId` - Market ID to check trade sizes for
+
+**Returns:** `Promise<IMaxTradeSizeResponse>`
+
+```typescript
+const tradeSizes = await sdk.accounts.getMaxPossibleTradeSizes(
+  "0x742d35...",
+  "100"
+);
+console.log(`Max Long Size: ${tradeSizes.maxPossibleTradeSizeForLong}`);
+console.log(`Max Short Size: ${tradeSizes.maxPossibleTradeSizeForShort}`);
+```
+
+#### `sdk.accounts.getMyMaxPossibleTradeSizes(marketId)`
+
+Gets maximum possible trade sizes for a specific market using the stored account.
+
+**Parameters:**
+
+- `marketId` - Market ID to check trade sizes for
+
+**Returns:** `Promise<IMaxTradeSizeResponse>`
+
+```typescript
+const tradeSizes = await sdk.accounts.getMyMaxPossibleTradeSizes("100");
+console.log(`Max Long Size: ${tradeSizes.maxPossibleTradeSizeForLong}`);
+console.log(`Max Short Size: ${tradeSizes.maxPossibleTradeSizeForShort}`);
 ```
 
 #### `sdk.accounts.getPositionByMarket(walletAddress, marketId)`
@@ -472,7 +512,25 @@ Gets margin information for the wallet address provided during SDK initializatio
 ```typescript
 const marginInfo = await sdk.getMarginInfo();
 console.log(`Available Margin: ${marginInfo.availableMargin}`);
-console.log(`Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`);
+console.log(
+  `Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`
+);
+```
+
+#### `sdk.getMaxPossibleTradeSizes(marketId)`
+
+Gets maximum possible trade sizes for a specific market using the stored account.
+
+**Parameters:**
+
+- `marketId` - Market ID to check trade sizes for
+
+**Returns:** `Promise<IMaxTradeSizeResponse>`
+
+```typescript
+const tradeSizes = await sdk.getMaxPossibleTradeSizes("100");
+console.log(`Max Long Size: ${tradeSizes.maxPossibleTradeSizeForLong}`);
+console.log(`Max Short Size: ${tradeSizes.maxPossibleTradeSizeForShort}`);
 ```
 
 ## 🛠️ Utilities
