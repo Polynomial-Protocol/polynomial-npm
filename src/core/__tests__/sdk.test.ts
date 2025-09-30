@@ -1,5 +1,9 @@
 import { PolynomialSDK } from "../sdk";
-import { ConfigurationError, ValidationError, AccountError } from "../../errors";
+import {
+  ConfigurationError,
+  ValidationError,
+  AccountError,
+} from "../../errors";
 import { HttpClient } from "../http";
 
 // Mock the HTTP client
@@ -254,7 +258,7 @@ describe("PolynomialSDK", () => {
     });
 
     it("should get account summary using stored wallet address", async () => {
-      jest.spyOn(sdk.accounts, "getAccountSummary").mockResolvedValue({
+      jest.spyOn(sdk.accounts, "getAccountSummaryForWallet").mockResolvedValue({
         account: {
           accountId: "123",
           owner: "0x123",
@@ -270,7 +274,7 @@ describe("PolynomialSDK", () => {
       const summary = await sdk.getAccountSummary();
       expect(summary).toBeDefined();
       expect(summary.account.accountId).toBe("123");
-      expect(sdk.accounts.getAccountSummary).toHaveBeenCalledWith(
+      expect(sdk.accounts.getAccountSummaryForWallet).toHaveBeenCalledWith(
         "0x1234567890123456789012345678901234567890"
       );
     });
