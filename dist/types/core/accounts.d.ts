@@ -1,5 +1,5 @@
 import { HttpClient } from "./http";
-import { IAccountAPIResponse, IPosition, IMarginInfoSummary } from "../types";
+import { IAccountAPIResponse, IPosition, IMarginInfoSummary, IMaxTradeSizeResponse } from "../types";
 /**
  * Accounts module for handling account management operations
  */
@@ -65,5 +65,13 @@ export declare class Accounts {
      * Gets margin information for the stored account
      */
     getMyMarginInfo(): Promise<IMarginInfoSummary>;
+    /**
+     * Gets maximum possible trade sizes for a specific market and account
+     */
+    getMaxPossibleTradeSizes(walletAddress: string, marketId: string): Promise<IMaxTradeSizeResponse>;
+    /**
+     * Gets maximum possible trade sizes for a specific market using the stored account
+     */
+    getMyMaxPossibleTradeSizes(marketId: string): Promise<IMaxTradeSizeResponse>;
 }
 //# sourceMappingURL=accounts.d.ts.map

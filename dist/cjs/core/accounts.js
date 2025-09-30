@@ -226,6 +226,40 @@ class Accounts {
     async getMyMarginInfo() {
         return this.getMarginInfo(this.walletAddress);
     }
+    /**
+     * Gets maximum possible trade sizes for a specific market and account
+     */
+    async getMaxPossibleTradeSizes(walletAddress, marketId) {
+        if (!(0, utils_1.isValidAddress)(walletAddress)) {
+            throw new errors_1.ValidationError("Invalid wallet address format", {
+                walletAddress,
+            });
+        }
+        try {
+            // First get the account to retrieve the accountId
+            const account = await this.getAccount(walletAddress);
+            if (!account) {
+                throw new errors_1.AccountError(`Account not found for wallet ${walletAddress}`, { walletAddress, chainId: this.chainId });
+            }
+            const requestPayload = {
+                accountId: account.accountId,
+                chainId: this.chainId,
+                marketId: marketId,
+                addedCollaterals: [],
+            };
+            const response = await this.httpClient.post("margins/max-possible-trade-sizes", requestPayload);
+            return response;
+        }
+        catch (error) {
+            throw new errors_1.AccountError(`Failed to fetch max possible trade sizes for market ${marketId}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress, marketId, chainId: this.chainId });
+        }
+    }
+    /**
+     * Gets maximum possible trade sizes for a specific market using the stored account
+     */
+    async getMyMaxPossibleTradeSizes(marketId) {
+        return this.getMaxPossibleTradeSizes(this.walletAddress, marketId);
+    }
 }
 exports.Accounts = Accounts;
 //# sourceMappingURL=accounts.js.map

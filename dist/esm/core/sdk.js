@@ -139,7 +139,9 @@ export class PolynomialSDK {
             return new PolynomialSDK(config, account.accountId);
         }
         catch (error) {
-            if (error instanceof AccountError || error instanceof ConfigurationError || error instanceof ValidationError) {
+            if (error instanceof AccountError ||
+                error instanceof ConfigurationError ||
+                error instanceof ValidationError) {
                 throw error;
             }
             throw new AccountError(`Failed to fetch account ID for wallet ${config.walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress: config.walletAddress, chainId });
@@ -218,6 +220,17 @@ export class PolynomialSDK {
             throw new ValidationError("Wallet address is required for margin operations. Please provide walletAddress when creating the SDK instance.", { operation: "margin_info" });
         }
         return await this.accounts.getMyMarginInfo();
+    }
+    /**
+     * Convenience method to get maximum possible trade sizes for a market
+     * Uses the walletAddress provided during SDK initialization
+     */
+    async getMaxPossibleTradeSizes(marketId) {
+        // Validate that wallet address is available
+        if (!this.walletAddress) {
+            throw new ValidationError("Wallet address is required for trade size operations. Please provide walletAddress when creating the SDK instance.", { operation: "max_trade_sizes" });
+        }
+        return await this.accounts.getMyMaxPossibleTradeSizes(marketId);
     }
 }
 //# sourceMappingURL=sdk.js.map

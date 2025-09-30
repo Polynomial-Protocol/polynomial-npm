@@ -74,6 +74,11 @@ export declare class PolynomialSDK {
      * Uses the walletAddress provided during SDK initialization
      */
     getMarginInfo(): Promise<import("../types").IMarginInfoSummary>;
+    /**
+     * Convenience method to get maximum possible trade sizes for a market
+     * Uses the walletAddress provided during SDK initialization
+     */
+    getMaxPossibleTradeSizes(marketId: string): Promise<import("../types").IMaxTradeSizeResponse>;
 }
 export {};
 //# sourceMappingURL=sdk.d.ts.map
