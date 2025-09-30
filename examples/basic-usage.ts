@@ -36,7 +36,7 @@ async function runExample(): Promise<void> {
   try {
     // Initialize the SDK with all required credentials
     console.log("🚀 Initializing Polynomial SDK...");
-    const sdk = PolynomialSDK.create({
+    const sdk = await PolynomialSDK.create({
       apiKey: API_KEY,
       sessionKey: SESSION_KEY,
       walletAddress: WALLET_ADDRESS,

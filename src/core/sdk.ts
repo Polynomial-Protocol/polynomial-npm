@@ -2,9 +2,10 @@ import { HttpClient } from "./http";
 import { Markets } from "./markets";
 import { Accounts } from "./accounts";
 import { Orders } from "./orders";
-import { ConfigurationError, ValidationError } from "../errors";
+import { ConfigurationError, ValidationError, AccountError } from "../errors";
 import { SDKConfig, NETWORKS, NetworkConfig } from "../config";
-import { isValidAddress, deriveAccountId } from "../utils";
+import { isValidAddress } from "../utils";
+import { IAccountAPIResponse } from "../types";
 
 /**
  * Internal SDK config type - all fields are required
@@ -21,14 +22,14 @@ export class PolynomialSDK {
   private readonly orderbookClient: HttpClient;
   private readonly walletAddress: string;
   private readonly sessionKey: string;
-  private readonly accountId: string; // Derived from wallet address and chain ID
+  private accountId: string; // Fetched from API during initialization
 
   // Module instances
   public readonly markets: Markets;
   public readonly accounts: Accounts;
   public readonly orders: Orders;
 
-  constructor(config: SDKConfig) {
+  private constructor(config: SDKConfig, accountId: string) {
     // Validate required configuration
     if (!config.apiKey) {
       throw new ConfigurationError("API key is required", {
@@ -86,8 +87,8 @@ export class PolynomialSDK {
     this.walletAddress = config.walletAddress;
     this.sessionKey = config.sessionKey;
 
-    // Derive account ID from wallet address and chain ID
-    this.accountId = deriveAccountId(this.walletAddress, this.config.chainId);
+    // Store the fetched account ID
+    this.accountId = accountId;
 
     // Get network configuration
     const networkKey = Object.keys(NETWORKS).find(
@@ -136,7 +137,7 @@ export class PolynomialSDK {
   }
 
   /**
-   * Gets the derived account ID
+   * Gets the account ID that was fetched from the API during initialization
    */
   private getAccountId(): string {
     return this.accountId;
@@ -144,9 +145,87 @@ export class PolynomialSDK {
 
   /**
    * Creates a new SDK instance with the provided configuration
+   * Fetches the account ID from the API during initialization
    */
-  static create(config: SDKConfig): PolynomialSDK {
-    return new PolynomialSDK(config);
+  static async create(config: SDKConfig): Promise<PolynomialSDK> {
+    // Validate required configuration before making API calls
+    if (!config.apiKey) {
+      throw new ConfigurationError("API key is required", {
+        providedConfig: { ...config, apiKey: "REDACTED" },
+      });
+    }
+
+    if (!config.walletAddress) {
+      throw new ConfigurationError(
+        "Wallet address is required for SDK initialization",
+        {
+          providedConfig: {
+            ...config,
+            apiKey: "REDACTED",
+            sessionKey: "REDACTED",
+          },
+        }
+      );
+    }
+
+    if (!config.sessionKey) {
+      throw new ConfigurationError(
+        "Session key is required for SDK initialization",
+        {
+          providedConfig: {
+            ...config,
+            apiKey: "REDACTED",
+            sessionKey: "REDACTED",
+          },
+        }
+      );
+    }
+
+    // Validate wallet address format
+    if (!isValidAddress(config.walletAddress)) {
+      throw new ValidationError("Invalid wallet address format", {
+        walletAddress: config.walletAddress,
+      });
+    }
+
+    // Set up temporary configuration to fetch account ID
+    const chainId = config.chainId || 8008;
+    const apiEndpoint = config.apiEndpoint || NETWORKS.mainnet!.apiEndpoint;
+
+    // Create temporary HTTP client to fetch account ID
+    const tempHttpClient = new HttpClient(apiEndpoint, config.apiKey);
+
+    try {
+      // Fetch account information from API
+      const response = await tempHttpClient.get<IAccountAPIResponse[]>(
+        `accounts?owner=${config.walletAddress}&ownershipType=SuperOwner&chainIds=${chainId}`
+      );
+
+      const account = response.find((item) => item.chainId === chainId);
+      
+      if (!account) {
+        throw new AccountError(
+          `No account found for wallet ${config.walletAddress} on chain ${chainId}. Please ensure the wallet has an active account on the Polynomial platform.`,
+          {
+            walletAddress: config.walletAddress,
+            chainId,
+          }
+        );
+      }
+
+      // Create SDK instance with the fetched account ID
+      return new PolynomialSDK(config, account.accountId);
+    } catch (error) {
+      if (error instanceof AccountError || error instanceof ConfigurationError || error instanceof ValidationError) {
+        throw error;
+      }
+      throw new AccountError(
+        `Failed to fetch account ID for wallet ${config.walletAddress}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { walletAddress: config.walletAddress, chainId }
+      );
+    }
   }
 
   /**

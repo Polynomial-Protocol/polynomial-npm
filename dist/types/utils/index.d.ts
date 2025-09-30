@@ -82,13 +82,4 @@ export declare function percentageToBasisPoints(percentage: number): number;
  * @returns Percentage value
  */
 export declare function basisPointsToPercentage(basisPoints: number): number;
-/**
- * Derives account ID from wallet address.
- * Uses a deterministic approach to generate account ID without API calls.
- *
- * @param walletAddress - Ethereum wallet address
- * @param chainId - Chain ID for the network
- * @returns Derived account ID as string
- */
-export declare function deriveAccountId(walletAddress: string, chainId: number): string;
 //# sourceMappingURL=index.d.ts.map

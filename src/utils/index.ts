@@ -149,32 +149,3 @@ export function percentageToBasisPoints(percentage: number): number {
 export function basisPointsToPercentage(basisPoints: number): number {
   return basisPoints / 100;
 }
-
-/**
- * Derives account ID from wallet address.
- * Uses a deterministic approach to generate account ID without API calls.
- *
- * @param walletAddress - Ethereum wallet address
- * @param chainId - Chain ID for the network
- * @returns Derived account ID as string
- */
-export function deriveAccountId(
-  walletAddress: string,
-  chainId: number
-): string {
-  // Simple deterministic derivation: combine wallet address and chain ID
-  // In a real implementation, this might use keccak256 or another hash function
-  // For now, we'll use a simple approach that creates a unique identifier
-  const combined = `${walletAddress.toLowerCase()}-${chainId}`;
-
-  // Convert to a numeric-like string that resembles typical account IDs
-  let hash = 0;
-  for (let i = 0; i < combined.length; i++) {
-    const char = combined.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-
-  // Return as positive string ID
-  return Math.abs(hash).toString();
-}

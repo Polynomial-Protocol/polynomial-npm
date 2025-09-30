@@ -1,8 +1,15 @@
 import { PolynomialSDK } from "../sdk";
-import { ConfigurationError, ValidationError } from "../../errors";
+import { ConfigurationError, ValidationError, AccountError } from "../../errors";
+import { HttpClient } from "../http";
 
 // Mock the HTTP client
 jest.mock("../http");
+
+const mockHttpClient = HttpClient as jest.MockedClass<typeof HttpClient>;
+
+// Mock the get method to return account data
+const mockGet = jest.fn();
+mockHttpClient.prototype.get = mockGet;
 
 describe("PolynomialSDK", () => {
   const validConfig = {
@@ -13,60 +20,101 @@ describe("PolynomialSDK", () => {
     chainId: 8008,
   };
 
-  describe("Constructor", () => {
-    it("should create SDK instance with valid config", () => {
-      const sdk = new PolynomialSDK(validConfig);
+  const mockAccountResponse = [
+    {
+      accountId: "123456789",
+      owner: "0x1234567890123456789012345678901234567890",
+      superOwner: "0x1234567890123456789012345678901234567890",
+      chainId: 8008,
+    },
+  ];
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default mock for successful account fetching
+    mockGet.mockResolvedValue(mockAccountResponse);
+  });
+
+  describe("SDK Creation", () => {
+    it("should create SDK instance with valid config", async () => {
+      const sdk = await PolynomialSDK.create(validConfig);
       expect(sdk).toBeInstanceOf(PolynomialSDK);
       expect(sdk.markets).toBeDefined();
       expect(sdk.accounts).toBeDefined();
       expect(sdk.orders).toBeDefined();
+      expect(mockGet).toHaveBeenCalledWith(
+        "accounts?owner=0x1234567890123456789012345678901234567890&ownershipType=SuperOwner&chainIds=8008"
+      );
     });
 
-    it("should throw ConfigurationError when API key is missing", () => {
-      expect(() => {
-        new PolynomialSDK({
+    it("should throw ConfigurationError when API key is missing", async () => {
+      await expect(
+        PolynomialSDK.create({
           apiKey: "",
           sessionKey:
             "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           walletAddress: "0x1234567890123456789012345678901234567890",
-        });
-      }).toThrow(ConfigurationError);
+        })
+      ).rejects.toThrow(ConfigurationError);
     });
 
-    it("should throw ConfigurationError when session key is missing", () => {
-      expect(() => {
-        new PolynomialSDK({
+    it("should throw ConfigurationError when session key is missing", async () => {
+      await expect(
+        PolynomialSDK.create({
           apiKey: "test-key",
           sessionKey: "",
           walletAddress: "0x1234567890123456789012345678901234567890",
-        });
-      }).toThrow(ConfigurationError);
+        })
+      ).rejects.toThrow(ConfigurationError);
     });
 
-    it("should throw ConfigurationError when wallet address is missing", () => {
-      expect(() => {
-        new PolynomialSDK({
+    it("should throw ConfigurationError when wallet address is missing", async () => {
+      await expect(
+        PolynomialSDK.create({
           apiKey: "test-key",
           sessionKey:
             "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           walletAddress: "",
-        });
-      }).toThrow(ConfigurationError);
+        })
+      ).rejects.toThrow(ConfigurationError);
     });
 
-    it("should throw ValidationError for invalid wallet address format", () => {
-      expect(() => {
-        new PolynomialSDK({
+    it("should throw ValidationError for invalid wallet address format", async () => {
+      await expect(
+        PolynomialSDK.create({
           apiKey: "test-key",
           sessionKey:
             "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           walletAddress: "invalid-address",
-        });
-      }).toThrow(ValidationError);
+        })
+      ).rejects.toThrow(ValidationError);
     });
 
-    it("should use default values for optional config", () => {
-      const sdk = new PolynomialSDK({
+    it("should throw AccountError when no account found", async () => {
+      mockGet.mockResolvedValue([]); // No accounts found
+
+      await expect(PolynomialSDK.create(validConfig)).rejects.toThrow(
+        AccountError
+      );
+    });
+
+    it("should throw AccountError when account for wrong chain", async () => {
+      mockGet.mockResolvedValue([
+        {
+          accountId: "123456789",
+          owner: "0x1234567890123456789012345678901234567890",
+          superOwner: "0x1234567890123456789012345678901234567890",
+          chainId: 1337, // Different chain ID
+        },
+      ]);
+
+      await expect(PolynomialSDK.create(validConfig)).rejects.toThrow(
+        AccountError
+      );
+    });
+
+    it("should use default values for optional config", async () => {
+      const sdk = await PolynomialSDK.create({
         apiKey: "test-key",
         sessionKey:
           "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -81,7 +129,7 @@ describe("PolynomialSDK", () => {
       );
     });
 
-    it("should override defaults with provided config", () => {
+    it("should override defaults with provided config", async () => {
       const customConfig = {
         apiKey: "test-key",
         sessionKey:
@@ -92,7 +140,17 @@ describe("PolynomialSDK", () => {
         apiEndpoint: "https://custom-api.example.com",
       };
 
-      const sdk = new PolynomialSDK(customConfig);
+      // Mock response for custom chain
+      mockGet.mockResolvedValue([
+        {
+          accountId: "987654321",
+          owner: "0x1234567890123456789012345678901234567890",
+          superOwner: "0x1234567890123456789012345678901234567890",
+          chainId: 1337,
+        },
+      ]);
+
+      const sdk = await PolynomialSDK.create(customConfig);
       const config = sdk.getConfig();
 
       expect(config.chainId).toBe(1337);
@@ -102,8 +160,8 @@ describe("PolynomialSDK", () => {
   });
 
   describe("Static Methods", () => {
-    it("should create SDK instance via static create method", () => {
-      const sdk = PolynomialSDK.create(validConfig);
+    it("should create SDK instance via static create method", async () => {
+      const sdk = await PolynomialSDK.create(validConfig);
       expect(sdk).toBeInstanceOf(PolynomialSDK);
     });
   });
@@ -111,8 +169,8 @@ describe("PolynomialSDK", () => {
   describe("Configuration Methods", () => {
     let sdk: PolynomialSDK;
 
-    beforeEach(() => {
-      sdk = new PolynomialSDK(validConfig);
+    beforeEach(async () => {
+      sdk = await PolynomialSDK.create(validConfig);
     });
 
     it("should return readonly config", () => {
@@ -145,8 +203,8 @@ describe("PolynomialSDK", () => {
   describe("Convenience Methods", () => {
     let sdk: PolynomialSDK;
 
-    beforeEach(() => {
-      sdk = new PolynomialSDK(validConfig);
+    beforeEach(async () => {
+      sdk = await PolynomialSDK.create(validConfig);
 
       // Mock the module methods
       jest.spyOn(sdk.accounts, "getAccount").mockResolvedValue({

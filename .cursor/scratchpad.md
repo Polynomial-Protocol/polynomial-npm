@@ -214,6 +214,65 @@ The goal is to transform this example code into a production-ready SDK that deve
 
 ## Executor's Feedback or Assistance Requests
 
+### ✅ **Account ID Fetching Enhancement Completed**
+
+**Issue Identified**: User wanted the SDK to automatically fetch the account ID from the API when creating an SDK instance with session key and wallet address, instead of deriving it locally.
+
+**Previous Implementation**: The SDK was using `deriveAccountId()` utility function to generate account ID locally using a hash of wallet address and chain ID.
+
+**Solution Implemented**:
+
+1. **Modified SDK Constructor**: Made constructor private and added `accountId` parameter
+2. **Updated SDK.create() Method**: Made it async to fetch account ID from API during initialization
+3. **API Integration**: Added API call to `/accounts` endpoint to fetch real account ID
+4. **Error Handling**: Added proper error handling for cases where no account is found
+5. **Removed Unused Code**: Deleted `deriveAccountId()` utility function since it's no longer needed
+6. **Updated Tests**: Modified all tests to handle async SDK initialization
+
+**Key Changes Made**:
+
+- **SDK Constructor**: Now private and requires pre-fetched account ID
+- **SDK.create()**: Now async and fetches account ID before creating SDK instance
+- **Account ID Storage**: Account ID is fetched once during initialization and stored as instance variable
+- **Orders Module**: Uses stored account ID via `this.getAccountId()` - no more fetching needed
+- **Error Handling**: Clear error messages when account is not found for the wallet/chain combination
+- **Test Updates**: All tests now use `await PolynomialSDK.create()` instead of `new PolynomialSDK()`
+
+**Benefits**:
+
+- ✅ **Real Account ID**: Uses actual account ID from Polynomial platform instead of derived hash
+- ✅ **One-Time Fetch**: Account ID is fetched once during SDK initialization, never again
+- ✅ **Better Performance**: No repeated account ID derivation or fetching during operations
+- ✅ **Fail Fast**: SDK creation fails immediately if account doesn't exist
+- ✅ **Type Safety**: Account ID is guaranteed to be available for all operations
+
+### ✅ **Example Files and Documentation Updated**
+
+**Issue Identified**: After making SDK creation async, the example files and README documentation were not updated to use `await` with `PolynomialSDK.create()`.
+
+**Solution Implemented**:
+
+1. **Fixed basic-usage.ts**: Updated to use `await PolynomialSDK.create()` instead of `PolynomialSDK.create()`
+2. **Updated README Examples**: Fixed all 11 instances of SDK creation in README to use `await`
+3. **Updated API Documentation**: Changed return type from `PolynomialSDK` to `Promise<PolynomialSDK>`
+4. **Added Function Wrappers**: Wrapped examples in async functions where needed for proper syntax
+5. **Fixed Missing Credentials**: Added required `sessionKey` and `walletAddress` to examples that were missing them
+
+**Key Changes Made**:
+
+- **examples/basic-usage.ts**: Added `await` to SDK creation on line 39
+- **README.md**: Updated all SDK creation examples to be async
+- **API Reference**: Updated return type documentation
+- **Error Examples**: Fixed async/await usage in error handling examples
+- **Environment Examples**: Updated environment variable usage examples
+
+**Benefits**:
+
+- ✅ **Correct Usage**: All examples now show proper async SDK initialization
+- ✅ **No TypeScript Errors**: Fixed all compilation errors in examples
+- ✅ **Consistent Documentation**: All examples follow the same async pattern
+- ✅ **Complete Examples**: All examples include required credentials
+
 **CREATE ORDER FUNCTION ENHANCED WITH DEFAULTS**: Successfully updated the createOrder functionality to have intelligent defaults for all parameters except marketId and size.
 
 ### ✅ **Enhanced Order Creation Completed**

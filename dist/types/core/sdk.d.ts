@@ -2,6 +2,7 @@ import { Markets } from "./markets";
 import { Accounts } from "./accounts";
 import { Orders } from "./orders";
 import { SDKConfig, NetworkConfig } from "../config";
+import { IAccountAPIResponse } from "../types";
 /**
  * Internal SDK config type - all fields are required
  */
@@ -16,19 +17,20 @@ export declare class PolynomialSDK {
     private readonly orderbookClient;
     private readonly walletAddress;
     private readonly sessionKey;
-    private readonly accountId;
+    private accountId;
     readonly markets: Markets;
     readonly accounts: Accounts;
     readonly orders: Orders;
-    constructor(config: SDKConfig);
+    private constructor();
     /**
-     * Gets the derived account ID
+     * Gets the account ID that was fetched from the API during initialization
      */
     private getAccountId;
     /**
      * Creates a new SDK instance with the provided configuration
+     * Fetches the account ID from the API during initialization
      */
-    static create(config: SDKConfig): PolynomialSDK;
+    static create(config: SDKConfig): Promise<PolynomialSDK>;
     /**
      * Gets the current configuration
      */
@@ -57,8 +59,8 @@ export declare class PolynomialSDK {
      * Uses the walletAddress provided during SDK initialization
      */
     getAccountSummary(): Promise<{
-        account: import("..").IAccountAPIResponse;
-        positions: import("..").IPosition[];
+        account: IAccountAPIResponse;
+        positions: import("../types").IPosition[];
         totalPositions: number;
         totalUnrealizedPnl: string;
         totalRealizedPnl: string;
@@ -66,7 +68,7 @@ export declare class PolynomialSDK {
     /**
      * Convenience method to get market data with statistics
      */
-    getMarketData(symbol?: string): Promise<import("..").IMarkets[] | Partial<import("..").IMarkets> | null>;
+    getMarketData(symbol?: string): Promise<import("../types").IMarkets[] | Partial<import("../types").IMarkets> | null>;
 }
 export {};
 //# sourceMappingURL=sdk.d.ts.map

@@ -12,7 +12,7 @@ const utils_1 = require("../utils");
  * Main Polynomial SDK class
  */
 class PolynomialSDK {
-    constructor(config) {
+    constructor(config, accountId) {
         // Validate required configuration
         if (!config.apiKey) {
             throw new errors_1.ConfigurationError("API key is required", {
@@ -57,8 +57,8 @@ class PolynomialSDK {
         // Store authentication credentials
         this.walletAddress = config.walletAddress;
         this.sessionKey = config.sessionKey;
-        // Derive account ID from wallet address and chain ID
-        this.accountId = (0, utils_1.deriveAccountId)(this.walletAddress, this.config.chainId);
+        // Store the fetched account ID
+        this.accountId = accountId;
         // Get network configuration
         const networkKey = Object.keys(config_1.NETWORKS).find((key) => config_1.NETWORKS[key].chainId === this.config.chainId);
         if (networkKey) {
@@ -83,16 +83,70 @@ class PolynomialSDK {
         this.orders = new orders_1.Orders(this.httpClient, this.orderbookClient, this.networkConfig, this.sessionKey, this.walletAddress, () => this.getAccountId());
     }
     /**
-     * Gets the derived account ID
+     * Gets the account ID that was fetched from the API during initialization
      */
     getAccountId() {
         return this.accountId;
     }
     /**
      * Creates a new SDK instance with the provided configuration
+     * Fetches the account ID from the API during initialization
      */
-    static create(config) {
-        return new PolynomialSDK(config);
+    static async create(config) {
+        // Validate required configuration before making API calls
+        if (!config.apiKey) {
+            throw new errors_1.ConfigurationError("API key is required", {
+                providedConfig: { ...config, apiKey: "REDACTED" },
+            });
+        }
+        if (!config.walletAddress) {
+            throw new errors_1.ConfigurationError("Wallet address is required for SDK initialization", {
+                providedConfig: {
+                    ...config,
+                    apiKey: "REDACTED",
+                    sessionKey: "REDACTED",
+                },
+            });
+        }
+        if (!config.sessionKey) {
+            throw new errors_1.ConfigurationError("Session key is required for SDK initialization", {
+                providedConfig: {
+                    ...config,
+                    apiKey: "REDACTED",
+                    sessionKey: "REDACTED",
+                },
+            });
+        }
+        // Validate wallet address format
+        if (!(0, utils_1.isValidAddress)(config.walletAddress)) {
+            throw new errors_1.ValidationError("Invalid wallet address format", {
+                walletAddress: config.walletAddress,
+            });
+        }
+        // Set up temporary configuration to fetch account ID
+        const chainId = config.chainId || 8008;
+        const apiEndpoint = config.apiEndpoint || config_1.NETWORKS.mainnet.apiEndpoint;
+        // Create temporary HTTP client to fetch account ID
+        const tempHttpClient = new http_1.HttpClient(apiEndpoint, config.apiKey);
+        try {
+            // Fetch account information from API
+            const response = await tempHttpClient.get(`accounts?owner=${config.walletAddress}&ownershipType=SuperOwner&chainIds=${chainId}`);
+            const account = response.find((item) => item.chainId === chainId);
+            if (!account) {
+                throw new errors_1.AccountError(`No account found for wallet ${config.walletAddress} on chain ${chainId}. Please ensure the wallet has an active account on the Polynomial platform.`, {
+                    walletAddress: config.walletAddress,
+                    chainId,
+                });
+            }
+            // Create SDK instance with the fetched account ID
+            return new PolynomialSDK(config, account.accountId);
+        }
+        catch (error) {
+            if (error instanceof errors_1.AccountError || error instanceof errors_1.ConfigurationError || error instanceof errors_1.ValidationError) {
+                throw error;
+            }
+            throw new errors_1.AccountError(`Failed to fetch account ID for wallet ${config.walletAddress}: ${error instanceof Error ? error.message : "Unknown error"}`, { walletAddress: config.walletAddress, chainId });
+        }
     }
     /**
      * Gets the current configuration

@@ -84,22 +84,24 @@ pnpm add polynomialfi
 ```typescript
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
-// Initialize the SDK with all required credentials
-const sdk = PolynomialSDK.create({
-  apiKey: "your-api-key",
-  sessionKey: "0x1234567890abcdef...", // Your private key for signing
-  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
-});
+async function example() {
+  // Initialize the SDK with all required credentials
+  const sdk = await PolynomialSDK.create({
+    apiKey: "your-api-key",
+    sessionKey: "0x1234567890abcdef...", // Your private key for signing
+    walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
+  });
 
-// Get ETH market data
-const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
-console.log(`ETH Price: $${ethMarket?.price}`);
+  // Get ETH market data
+  const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
+  console.log(`ETH Price: $${ethMarket?.price}`);
 
-// Create a simple order - credentials are already stored in SDK
-const result = await sdk.createOrder(
-  ethMarket.marketId,
-  parseUnits("0.1") // 0.1 ETH
-);
+  // Create a simple order - credentials are already stored in SDK
+  const result = await sdk.createOrder(
+    ethMarket.marketId,
+    parseUnits("0.1") // 0.1 ETH
+  );
+}
 ```
 
 > **💡 Tip**: Check out the [examples directory](./examples/) for complete working examples!
@@ -111,7 +113,7 @@ const result = await sdk.createOrder(
 All SDK instances require these credentials:
 
 ```typescript
-const sdk = PolynomialSDK.create({
+const sdk = await PolynomialSDK.create({
   apiKey: "your-api-key", // Required: API authentication
   sessionKey: "0x1234...", // Required: Private key for signing orders
   walletAddress: "0x742d35...", // Required: Your trading wallet address
@@ -121,7 +123,7 @@ const sdk = PolynomialSDK.create({
 ### Advanced Configuration
 
 ```typescript
-const sdk = PolynomialSDK.create({
+const sdk = await PolynomialSDK.create({
   apiKey: "your-api-key",
   sessionKey: "0x1234...",
   walletAddress: "0x742d35...",
@@ -153,12 +155,12 @@ Creates a new SDK instance.
 | `relayerAddress`    | `string` | ❌       | Default relayer   | Custom relayer address              |
 | `defaultSlippage`   | `bigint` | ❌       | `10n`             | Default slippage tolerance (%)      |
 
-**Returns:** `PolynomialSDK` instance
+**Returns:** `Promise<PolynomialSDK>` instance
 
 **Example:**
 
 ```typescript
-const sdk = PolynomialSDK.create({
+const sdk = await PolynomialSDK.create({
   apiKey: "your-api-key",
   sessionKey: "0x1234567890abcdef...",
   walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7",
@@ -529,9 +531,13 @@ The SDK includes comprehensive examples to get you started quickly:
 Complete example showing SDK initialization, market data fetching, and account management.
 
 ```typescript
-const sdk = PolynomialSDK.create({ apiKey: "your-key" });
+const sdk = await PolynomialSDK.create({
+  apiKey: "your-key",
+  sessionKey: "0x1234...",
+  walletAddress: "0x742d35...",
+});
 const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
-const accountSummary = await sdk.getAccountSummary(walletAddress);
+const accountSummary = await sdk.getAccountSummary();
 ```
 
 ### 🏗️ Simple Trading Example
@@ -539,28 +545,30 @@ const accountSummary = await sdk.getAccountSummary(walletAddress);
 ```typescript
 import { PolynomialSDK, parseUnits } from "polynomialfi";
 
-// Initialize SDK with all required credentials
-const sdk = PolynomialSDK.create({
-  apiKey: "your-key",
-  sessionKey: "0x1234567890abcdef...", // Your private key for signing
-  walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
-});
+async function example() {
+  // Initialize SDK with all required credentials
+  const sdk = await PolynomialSDK.create({
+    apiKey: "your-key",
+    sessionKey: "0x1234567890abcdef...", // Your private key for signing
+    walletAddress: "0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7", // Your wallet
+  });
 
-// Get market data
-const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
+  // Get market data
+  const ethMarket = await sdk.markets.getMarketBySymbol("ETH");
 
-// Create a simple order - only marketId and size required!
-const result = await sdk.createOrder(
-  ethMarket.marketId,
-  parseUnits("0.1") // 0.1 ETH long position (default)
-);
+  // Create a simple order - only marketId and size required!
+  const result = await sdk.createOrder(
+    ethMarket.marketId,
+    parseUnits("0.1") // 0.1 ETH long position (default)
+  );
 
-// Or create a short position with custom slippage
-const shortResult = await sdk.createOrder(
-  ethMarket.marketId,
-  parseUnits("0.1"),
-  { isLong: false, slippagePercentage: 5n }
-);
+  // Or create a short position with custom slippage
+  const shortResult = await sdk.createOrder(
+    ethMarket.marketId,
+    parseUnits("0.1"),
+    { isLong: false, slippagePercentage: 5n }
+  );
+}
 ```
 
 ## 🛠️ Development
@@ -620,7 +628,7 @@ The SDK requires all credentials to be provided during initialization. This ensu
 All credentials must be provided when creating the SDK instance:
 
 ```typescript
-const sdk = PolynomialSDK.create({
+const sdk = await PolynomialSDK.create({
   apiKey: "your-api-key", // Required for API access
   sessionKey: "0x1234...", // Required for signing orders
   walletAddress: "0x742d35...", // Required for trading operations
@@ -637,7 +645,7 @@ The SDK validates credentials during initialization and throws clear errors:
 
 ```typescript
 try {
-  const sdk = PolynomialSDK.create({
+  const sdk = await PolynomialSDK.create({
     apiKey: "your-api-key",
     // Missing sessionKey and walletAddress
   });
@@ -665,7 +673,7 @@ WALLET_ADDRESS=0x742d35Cc6634C0532925a3b8D8d9d4B8e2b3c8a7
 
 ```typescript
 // In your application
-const sdk = PolynomialSDK.create({
+const sdk = await PolynomialSDK.create({
   apiKey: process.env.POLYNOMIAL_API_KEY!,
   sessionKey: process.env.SESSION_KEY!,
   walletAddress: process.env.WALLET_ADDRESS!,
@@ -682,8 +690,10 @@ const sdk = PolynomialSDK.create({
 ### Custom Network Configuration
 
 ```typescript
-const sdk = PolynomialSDK.create({
+const sdk = await PolynomialSDK.create({
   apiKey: "your-api-key",
+  sessionKey: "0x1234...",
+  walletAddress: "0x742d35...",
   chainId: 1337,
   apiEndpoint: "https://your-custom-api.com",
   orderbookEndpoint: "https://your-custom-orderbook.com/api",
