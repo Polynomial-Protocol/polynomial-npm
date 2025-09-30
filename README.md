@@ -616,11 +616,11 @@ The SDK requires all credentials to be provided during initialization. This ensu
 
 ### Required Credentials
 
-| Credential         | Description                              | Required For     | How to Get                                                                                                                                                          |
-| ------------------ | ---------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **API Key**        | Authentication for API access            | All operations   | Generate/give permission at [Polynomial Portfolio API](https://polynomial.fi/en/mainnet/portfolio/api) or contact team via [Discord](https://discord.gg/polynomial) |
-| **Session Key**    | Private key for signing orders (EIP-712) | Order operations | Generate or use existing private key                                                                                                                                |
-| **Wallet Address** | Your primary trading wallet address      | Order operations | Your Ethereum wallet address                                                                                                                                        |
+| Credential         | Description                               | Required For     | How to Get                                                                                 |
+| ------------------ | ----------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------ |
+| **API Key**        | Authentication for API access (x-api-key) | All operations   | Get x-api-key from [Discord](https://discord.gg/polynomial)                                |
+| **Session Key**    | Private key for signing orders (EIP-712)  | Order operations | Generate/authorize API wallets from [here](https://polynomial.fi/en/mainnet/portfolio/api) |
+| **Wallet Address** | Your primary trading wallet address       | Order operations | Your Ethereum wallet address                                                               |
 
 ### Authentication Flow
 
@@ -746,9 +746,6 @@ Get help and connect with the community:
 <div align="center">
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289da?style=for-the-badge&logo=discord)](https://discord.gg/polynomial)
-[![Twitter](https://img.shields.io/badge/Twitter-Follow-1da1f2?style=for-the-badge&logo=twitter)](https://twitter.com/PolynomialFi)
-[![Documentation](https://img.shields.io/badge/Docs-Read-blue?style=for-the-badge&logo=gitbook)](https://docs.polynomial.fi)
-[![Website](https://img.shields.io/badge/Website-Visit-green?style=for-the-badge&logo=globe)](https://polynomial.fi)
 
 </div>
 
@@ -756,8 +753,6 @@ Get help and connect with the community:
 
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/polynomial-protocol/polynomial-sdk/issues)
 - 💬 **General Questions**: [Discord Community](https://discord.gg/polynomial)
-- 📚 **Documentation**: [Official Docs](https://docs.polynomial.fi)
-- 📧 **Business Inquiries**: team@polynomial.fi
 
 ## 📋 Changelog
 
