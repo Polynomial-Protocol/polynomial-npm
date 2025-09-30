@@ -241,14 +241,14 @@ const positions = await sdk.accounts.getPositions("0x742d35...");
 console.log(`Found ${positions.length} positions`);
 ```
 
-#### `sdk.accounts.getMyPositions()`
+#### `sdk.accounts.getPositions()`
 
 Gets all open positions for the stored account (uses stored wallet address).
 
 **Returns:** `Promise<IPosition[]>`
 
 ```typescript
-const positions = await sdk.accounts.getMyPositions();
+const positions = await sdk.accounts.getPositions();
 console.log(`Found ${positions.length} positions`);
 ```
 
@@ -267,14 +267,14 @@ const summary = await sdk.accounts.getAccountSummary("0x742d35...");
 console.log(`Total Positions: ${summary.totalPositions}`);
 ```
 
-#### `sdk.accounts.getMyAccountSummary()`
+#### `sdk.accounts.getAccountSummary()`
 
 Gets comprehensive account summary for the stored account (uses stored wallet address).
 
 **Returns:** `Promise<AccountSummary>`
 
 ```typescript
-const summary = await sdk.accounts.getMyAccountSummary();
+const summary = await sdk.accounts.getAccountSummary();
 console.log(`Total Positions: ${summary.totalPositions}`);
 ```
 
@@ -296,14 +296,14 @@ console.log(
 );
 ```
 
-#### `sdk.accounts.getMyMarginInfo()`
+#### `sdk.accounts.getMarginInfo()`
 
 Gets margin information for the stored account (uses stored wallet address).
 
 **Returns:** `Promise<IMarginInfoSummary>`
 
 ```typescript
-const marginInfo = await sdk.accounts.getMyMarginInfo();
+const marginInfo = await sdk.accounts.getMarginInfo();
 console.log(`Available Margin: ${marginInfo.availableMargin}`);
 console.log(
   `Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`
@@ -330,7 +330,7 @@ console.log(`Max Long Size: ${tradeSizes.maxPossibleTradeSizeForLong}`);
 console.log(`Max Short Size: ${tradeSizes.maxPossibleTradeSizeForShort}`);
 ```
 
-#### `sdk.accounts.getMyMaxPossibleTradeSizes(marketId)`
+#### `sdk.accounts.getMaxPossibleTradeSizes(marketId)`
 
 Gets maximum possible trade sizes for a specific market using the stored account.
 
@@ -341,7 +341,7 @@ Gets maximum possible trade sizes for a specific market using the stored account
 **Returns:** `Promise<IMaxTradeSizeResponse>`
 
 ```typescript
-const tradeSizes = await sdk.accounts.getMyMaxPossibleTradeSizes("100");
+const tradeSizes = await sdk.accounts.getMaxPossibleTradeSizes("100");
 console.log(`Max Long Size: ${tradeSizes.maxPossibleTradeSizeForLong}`);
 console.log(`Max Short Size: ${tradeSizes.maxPossibleTradeSizeForShort}`);
 ```
@@ -364,7 +364,7 @@ const position = await sdk.accounts.getPositionByMarket(
 );
 ```
 
-#### `sdk.accounts.getMyPositionByMarket(marketId)`
+#### `sdk.accounts.getPositionByMarket(marketId)`
 
 Gets a specific position for a market using the stored account.
 
@@ -375,7 +375,7 @@ Gets a specific position for a market using the stored account.
 **Returns:** `Promise<IPosition | null>`
 
 ```typescript
-const position = await sdk.accounts.getMyPositionByMarket("market-id");
+const position = await sdk.accounts.getPositionByMarket("market-id");
 ```
 
 ### 📝 Orders Module

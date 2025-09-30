@@ -195,7 +195,7 @@ export class PolynomialSDK {
         if (!this.walletAddress) {
             throw new ValidationError("Wallet address is required for account operations. Please provide walletAddress when creating the SDK instance.", { operation: "account_summary" });
         }
-        return await this.accounts.getAccountSummary(this.walletAddress);
+        return await this.accounts.getAccountSummaryForWallet(this.walletAddress);
     }
     /**
      * Convenience method to get market data with statistics
@@ -219,7 +219,7 @@ export class PolynomialSDK {
         if (!this.walletAddress) {
             throw new ValidationError("Wallet address is required for margin operations. Please provide walletAddress when creating the SDK instance.", { operation: "margin_info" });
         }
-        return await this.accounts.getMyMarginInfo();
+        return await this.accounts.getMarginInfo();
     }
     /**
      * Convenience method to get maximum possible trade sizes for a market
@@ -230,7 +230,7 @@ export class PolynomialSDK {
         if (!this.walletAddress) {
             throw new ValidationError("Wallet address is required for trade size operations. Please provide walletAddress when creating the SDK instance.", { operation: "max_trade_sizes" });
         }
-        return await this.accounts.getMyMaxPossibleTradeSizes(marketId);
+        return await this.accounts.getMaxPossibleTradeSizes(marketId);
     }
 }
 //# sourceMappingURL=sdk.js.map

@@ -62,7 +62,7 @@ export class Accounts {
   /**
    * Gets all positions for a specific wallet address
    */
-  async getPositions(walletAddress: string): Promise<IPosition[]> {
+  async getPositionsForWallet(walletAddress: string): Promise<IPosition[]> {
     try {
       const response = await this.httpClient.get<IPositionDataReceived>(
         `positions/v2?owner=${walletAddress}&ownershipType=SuperOwner`
@@ -82,12 +82,12 @@ export class Accounts {
   /**
    * Gets a specific position by market ID
    */
-  async getPositionByMarket(
+  async getPositionByMarketForWallet(
     walletAddress: string,
     marketId: string
   ): Promise<IPosition | null> {
     try {
-      const positions = await this.getPositions(walletAddress);
+      const positions = await this.getPositionsForWallet(walletAddress);
       return (
         positions.find((position) => position.marketId === marketId) || null
       );
@@ -104,7 +104,7 @@ export class Accounts {
   /**
    * Gets account summary including positions and key metrics
    */
-  async getAccountSummary(walletAddress: string): Promise<{
+  async getAccountSummaryForWallet(walletAddress: string): Promise<{
     account: IAccountAPIResponse;
     positions: IPosition[];
     totalPositions: number;
@@ -125,7 +125,7 @@ export class Accounts {
       }
 
       // Get positions using the wallet address
-      const positions = await this.getPositions(walletAddress);
+      const positions = await this.getPositionsForWallet(walletAddress);
 
       // Calculate totals
       const totalUnrealizedPnl = positions
@@ -208,7 +208,7 @@ export class Accounts {
   /**
    * Gets all positions for the stored account using wallet address
    */
-  async getMyPositions(): Promise<IPosition[]> {
+  async getPositions(): Promise<IPosition[]> {
     try {
       const response = await this.httpClient.get<IPositionDataReceived>(
         `positions/v2?offset=0&limit=0&owner=${this.walletAddress}&ownershipType=SuperOwner&chainIds=${this.chainId}`
@@ -228,9 +228,9 @@ export class Accounts {
   /**
    * Gets a specific position by market ID for the stored account
    */
-  async getMyPositionByMarket(marketId: string): Promise<IPosition | null> {
+  async getPositionByMarket(marketId: string): Promise<IPosition | null> {
     try {
-      const positions = await this.getMyPositions();
+      const positions = await this.getPositions();
       return (
         positions.find((position) => position.marketId === marketId) || null
       );
@@ -247,7 +247,7 @@ export class Accounts {
   /**
    * Gets account summary for the stored account
    */
-  async getMyAccountSummary(): Promise<{
+  async getAccountSummary(): Promise<{
     account: IAccountAPIResponse;
     positions: IPosition[];
     totalPositions: number;
@@ -268,7 +268,7 @@ export class Accounts {
       }
 
       // Get positions using the derived account ID
-      const positions = await this.getMyPositions();
+      const positions = await this.getPositions();
 
       // Calculate totals
       const totalUnrealizedPnl = positions
@@ -308,7 +308,7 @@ export class Accounts {
   /**
    * Gets margin information for a specific wallet address
    */
-  async getMarginInfo(walletAddress: string): Promise<IMarginInfoSummary> {
+  async getMarginInfoForWallet(walletAddress: string): Promise<IMarginInfoSummary> {
     if (!isValidAddress(walletAddress)) {
       throw new ValidationError("Invalid wallet address format", {
         walletAddress,
@@ -348,14 +348,14 @@ export class Accounts {
   /**
    * Gets margin information for the stored account
    */
-  async getMyMarginInfo(): Promise<IMarginInfoSummary> {
-    return this.getMarginInfo(this.walletAddress);
+  async getMarginInfo(): Promise<IMarginInfoSummary> {
+    return this.getMarginInfoForWallet(this.walletAddress);
   }
 
   /**
    * Gets maximum possible trade sizes for a specific market and account
    */
-  async getMaxPossibleTradeSizes(
+  async getMaxPossibleTradeSizesForWallet(
     walletAddress: string,
     marketId: string
   ): Promise<IMaxTradeSizeResponse> {
@@ -401,9 +401,9 @@ export class Accounts {
   /**
    * Gets maximum possible trade sizes for a specific market using the stored account
    */
-  async getMyMaxPossibleTradeSizes(
+  async getMaxPossibleTradeSizes(
     marketId: string
   ): Promise<IMaxTradeSizeResponse> {
-    return this.getMaxPossibleTradeSizes(this.walletAddress, marketId);
+    return this.getMaxPossibleTradeSizesForWallet(this.walletAddress, marketId);
   }
 }

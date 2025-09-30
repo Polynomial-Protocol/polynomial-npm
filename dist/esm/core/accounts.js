@@ -31,7 +31,7 @@ export class Accounts {
     /**
      * Gets all positions for a specific wallet address
      */
-    async getPositions(walletAddress) {
+    async getPositionsForWallet(walletAddress) {
         try {
             const response = await this.httpClient.get(`positions/v2?owner=${walletAddress}&ownershipType=SuperOwner`);
             return response.positions || [];
@@ -43,9 +43,9 @@ export class Accounts {
     /**
      * Gets a specific position by market ID
      */
-    async getPositionByMarket(walletAddress, marketId) {
+    async getPositionByMarketForWallet(walletAddress, marketId) {
         try {
-            const positions = await this.getPositions(walletAddress);
+            const positions = await this.getPositionsForWallet(walletAddress);
             return (positions.find((position) => position.marketId === marketId) || null);
         }
         catch (error) {
@@ -55,7 +55,7 @@ export class Accounts {
     /**
      * Gets account summary including positions and key metrics
      */
-    async getAccountSummary(walletAddress) {
+    async getAccountSummaryForWallet(walletAddress) {
         try {
             // Get account by wallet address
             const account = await this.getAccount(walletAddress);
@@ -65,7 +65,7 @@ export class Accounts {
                 });
             }
             // Get positions using the wallet address
-            const positions = await this.getPositions(walletAddress);
+            const positions = await this.getPositionsForWallet(walletAddress);
             // Calculate totals
             const totalUnrealizedPnl = positions
                 .reduce((sum, pos) => {
@@ -129,7 +129,7 @@ export class Accounts {
     /**
      * Gets all positions for the stored account using wallet address
      */
-    async getMyPositions() {
+    async getPositions() {
         try {
             const response = await this.httpClient.get(`positions/v2?offset=0&limit=0&owner=${this.walletAddress}&ownershipType=SuperOwner&chainIds=${this.chainId}`);
             return response.positions || [];
@@ -141,9 +141,9 @@ export class Accounts {
     /**
      * Gets a specific position by market ID for the stored account
      */
-    async getMyPositionByMarket(marketId) {
+    async getPositionByMarket(marketId) {
         try {
-            const positions = await this.getMyPositions();
+            const positions = await this.getPositions();
             return (positions.find((position) => position.marketId === marketId) || null);
         }
         catch (error) {
@@ -153,7 +153,7 @@ export class Accounts {
     /**
      * Gets account summary for the stored account
      */
-    async getMyAccountSummary() {
+    async getAccountSummary() {
         try {
             // Get account by wallet address (this still uses wallet address as it's the lookup key)
             const account = await this.getAccount(this.walletAddress);
@@ -163,7 +163,7 @@ export class Accounts {
                 });
             }
             // Get positions using the derived account ID
-            const positions = await this.getMyPositions();
+            const positions = await this.getPositions();
             // Calculate totals
             const totalUnrealizedPnl = positions
                 .reduce((sum, pos) => {
@@ -195,7 +195,7 @@ export class Accounts {
     /**
      * Gets margin information for a specific wallet address
      */
-    async getMarginInfo(walletAddress) {
+    async getMarginInfoForWallet(walletAddress) {
         if (!isValidAddress(walletAddress)) {
             throw new ValidationError("Invalid wallet address format", {
                 walletAddress,
@@ -220,13 +220,13 @@ export class Accounts {
     /**
      * Gets margin information for the stored account
      */
-    async getMyMarginInfo() {
-        return this.getMarginInfo(this.walletAddress);
+    async getMarginInfo() {
+        return this.getMarginInfoForWallet(this.walletAddress);
     }
     /**
      * Gets maximum possible trade sizes for a specific market and account
      */
-    async getMaxPossibleTradeSizes(walletAddress, marketId) {
+    async getMaxPossibleTradeSizesForWallet(walletAddress, marketId) {
         if (!isValidAddress(walletAddress)) {
             throw new ValidationError("Invalid wallet address format", {
                 walletAddress,
@@ -254,8 +254,8 @@ export class Accounts {
     /**
      * Gets maximum possible trade sizes for a specific market using the stored account
      */
-    async getMyMaxPossibleTradeSizes(marketId) {
-        return this.getMaxPossibleTradeSizes(this.walletAddress, marketId);
+    async getMaxPossibleTradeSizes(marketId) {
+        return this.getMaxPossibleTradeSizesForWallet(this.walletAddress, marketId);
     }
 }
 //# sourceMappingURL=accounts.js.map

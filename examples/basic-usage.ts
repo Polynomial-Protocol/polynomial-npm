@@ -60,7 +60,7 @@ async function runExample(): Promise<void> {
     });
 
     // Step 2: Get ETH market details (with fallback)
-    let selectedMarket = await sdk.markets.getMarketBySymbol("ETH");
+    let selectedMarket = await sdk.markets.getMarketBySymbol("SOL");
 
     if (!selectedMarket && markets.length > 0) {
       // Fallback to first available market if ETH not found
@@ -68,7 +68,7 @@ async function runExample(): Promise<void> {
       if (firstMarket) {
         selectedMarket = firstMarket;
         console.log(
-          `⚠️  ETH market not found, using ${selectedMarket.symbol} instead`
+          `⚠️  SOL market not found, using ${selectedMarket.symbol} instead`
         );
       }
     }
@@ -82,12 +82,12 @@ async function runExample(): Promise<void> {
     );
 
     // Step 3: Get account summary using stored credentials (no parameters needed)
-    const accountSummary = await sdk.accounts.getMyAccountSummary();
+    const accountSummary = await sdk.accounts.getAccountSummary();
     console.log("Account fetched", accountSummary);
 
     // Step 3.5: Get margin information
     console.log("📊 Fetching margin information...");
-    const marginInfo = await sdk.accounts.getMyMarginInfo();
+    const marginInfo = await sdk.accounts.getMarginInfo();
     console.log(`💰 Available Margin: ${marginInfo.availableMargin}`);
     console.log(
       `⚠️  Required Maintenance Margin: ${marginInfo.requiredMaintenanceMargin}`

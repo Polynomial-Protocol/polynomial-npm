@@ -302,7 +302,7 @@ export class PolynomialSDK {
       );
     }
 
-    return await this.accounts.getAccountSummary(this.walletAddress);
+    return await this.accounts.getAccountSummaryForWallet(this.walletAddress);
   }
 
   /**
@@ -333,7 +333,7 @@ export class PolynomialSDK {
       );
     }
 
-    return await this.accounts.getMyMarginInfo();
+    return await this.accounts.getMarginInfo();
   }
 
   /**
@@ -349,6 +349,6 @@ export class PolynomialSDK {
       );
     }
 
-    return await this.accounts.getMyMaxPossibleTradeSizes(marketId);
+    return await this.accounts.getMaxPossibleTradeSizes(marketId);
   }
 }

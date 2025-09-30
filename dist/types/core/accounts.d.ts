@@ -16,15 +16,15 @@ export declare class Accounts {
     /**
      * Gets all positions for a specific wallet address
      */
-    getPositions(walletAddress: string): Promise<IPosition[]>;
+    getPositionsForWallet(walletAddress: string): Promise<IPosition[]>;
     /**
      * Gets a specific position by market ID
      */
-    getPositionByMarket(walletAddress: string, marketId: string): Promise<IPosition | null>;
+    getPositionByMarketForWallet(walletAddress: string, marketId: string): Promise<IPosition | null>;
     /**
      * Gets account summary including positions and key metrics
      */
-    getAccountSummary(walletAddress: string): Promise<{
+    getAccountSummaryForWallet(walletAddress: string): Promise<{
         account: IAccountAPIResponse;
         positions: IPosition[];
         totalPositions: number;
@@ -42,15 +42,15 @@ export declare class Accounts {
     /**
      * Gets all positions for the stored account using wallet address
      */
-    getMyPositions(): Promise<IPosition[]>;
+    getPositions(): Promise<IPosition[]>;
     /**
      * Gets a specific position by market ID for the stored account
      */
-    getMyPositionByMarket(marketId: string): Promise<IPosition | null>;
+    getPositionByMarket(marketId: string): Promise<IPosition | null>;
     /**
      * Gets account summary for the stored account
      */
-    getMyAccountSummary(): Promise<{
+    getAccountSummary(): Promise<{
         account: IAccountAPIResponse;
         positions: IPosition[];
         totalPositions: number;
@@ -60,18 +60,18 @@ export declare class Accounts {
     /**
      * Gets margin information for a specific wallet address
      */
-    getMarginInfo(walletAddress: string): Promise<IMarginInfoSummary>;
+    getMarginInfoForWallet(walletAddress: string): Promise<IMarginInfoSummary>;
     /**
      * Gets margin information for the stored account
      */
-    getMyMarginInfo(): Promise<IMarginInfoSummary>;
+    getMarginInfo(): Promise<IMarginInfoSummary>;
     /**
      * Gets maximum possible trade sizes for a specific market and account
      */
-    getMaxPossibleTradeSizes(walletAddress: string, marketId: string): Promise<IMaxTradeSizeResponse>;
+    getMaxPossibleTradeSizesForWallet(walletAddress: string, marketId: string): Promise<IMaxTradeSizeResponse>;
     /**
      * Gets maximum possible trade sizes for a specific market using the stored account
      */
-    getMyMaxPossibleTradeSizes(marketId: string): Promise<IMaxTradeSizeResponse>;
+    getMaxPossibleTradeSizes(marketId: string): Promise<IMaxTradeSizeResponse>;
 }
 //# sourceMappingURL=accounts.d.ts.map
