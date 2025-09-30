@@ -4,7 +4,7 @@ import { Accounts } from "./accounts";
 import { Orders } from "./orders";
 import { ConfigurationError, ValidationError } from "../errors";
 import { SDKConfig, NETWORKS, NetworkConfig } from "../config";
-import { isValidAddress } from "../utils";
+import { isValidAddress, deriveAccountId } from "../utils";
 
 /**
  * Internal SDK config type - all fields are required
@@ -21,7 +21,7 @@ export class PolynomialSDK {
   private readonly orderbookClient: HttpClient;
   private readonly walletAddress: string;
   private readonly sessionKey: string;
-  private accountId?: string; // Will be fetched and cached during initialization
+  private readonly accountId: string; // Derived from wallet address and chain ID
 
   // Module instances
   public readonly markets: Markets;
@@ -69,11 +69,7 @@ export class PolynomialSDK {
       });
     }
 
-    // Store authentication credentials
-    this.walletAddress = config.walletAddress;
-    this.sessionKey = config.sessionKey;
-
-    // Set up configuration with defaults
+    // Set up configuration with defaults first
     this.config = {
       chainId: config.chainId || 8008,
       apiEndpoint: config.apiEndpoint || NETWORKS.mainnet!.apiEndpoint,
@@ -85,6 +81,13 @@ export class PolynomialSDK {
       walletAddress: config.walletAddress,
       sessionKey: config.sessionKey,
     };
+
+    // Store authentication credentials
+    this.walletAddress = config.walletAddress;
+    this.sessionKey = config.sessionKey;
+
+    // Derive account ID from wallet address and chain ID
+    this.accountId = deriveAccountId(this.walletAddress, this.config.chainId);
 
     // Get network configuration
     const networkKey = Object.keys(NETWORKS).find(
@@ -130,44 +133,12 @@ export class PolynomialSDK {
       this.walletAddress,
       () => this.getAccountId()
     );
-
-    // Fetch and cache account ID during initialization
-    this.initializeAccountId();
   }
 
   /**
-   * Fetches and caches the account ID for the wallet address
+   * Gets the derived account ID
    */
-  private async initializeAccountId(): Promise<void> {
-    try {
-      const account = await this.accounts.getAccount(this.walletAddress);
-      if (account) {
-        this.accountId = account.accountId;
-      }
-    } catch (error) {
-      // Account ID will be fetched lazily if initialization fails
-      console.warn(
-        `Failed to fetch account ID during initialization: ${
-          error instanceof Error ? error.message : "Unknown error"
-        }`
-      );
-    }
-  }
-
-  /**
-   * Gets the cached account ID, fetching it if not already cached
-   */
-  private async getAccountId(): Promise<string> {
-    if (!this.accountId) {
-      const account = await this.accounts.getAccount(this.walletAddress);
-      if (!account) {
-        throw new ValidationError(
-          `No account found for wallet address: ${this.walletAddress}`,
-          { walletAddress: this.walletAddress }
-        );
-      }
-      this.accountId = account.accountId;
-    }
+  private getAccountId(): string {
     return this.accountId;
   }
 

@@ -225,47 +225,88 @@ const account = await sdk.accounts.getAccount("0x742d35...");
 console.log(`Account ID: ${account?.accountId}`);
 ```
 
-#### `sdk.accounts.getPositions(accountId)`
+#### `sdk.accounts.getPositions(walletAddress)`
 
-Gets all open positions for an account.
+Gets all open positions for a wallet address.
 
 **Parameters:**
 
-- `accountId` - Account ID
+- `walletAddress` - Wallet address
 
 **Returns:** `Promise<IPosition[]>`
 
 ```typescript
-const positions = await sdk.accounts.getPositions("account-id");
+const positions = await sdk.accounts.getPositions("0x742d35...");
 console.log(`Found ${positions.length} positions`);
 ```
 
-#### `sdk.accounts.getAccountSummary(accountId)`
+#### `sdk.accounts.getMyPositions()`
+
+Gets all open positions for the stored account (uses derived account ID).
+
+**Returns:** `Promise<IPosition[]>`
+
+```typescript
+const positions = await sdk.accounts.getMyPositions();
+console.log(`Found ${positions.length} positions`);
+```
+
+#### `sdk.accounts.getAccountSummary(walletAddress)`
 
 Gets comprehensive account summary with positions and metrics.
 
 **Parameters:**
 
-- `accountId` - Account ID
+- `walletAddress` - Wallet address
 
 **Returns:** `Promise<AccountSummary>`
 
 ```typescript
-const summary = await sdk.accounts.getAccountSummary("account-id");
+const summary = await sdk.accounts.getAccountSummary("0x742d35...");
 console.log(`Total Positions: ${summary.totalPositions}`);
 ```
 
-#### `sdk.accounts.getPositionByMarket(accountId, marketId)`
+#### `sdk.accounts.getMyAccountSummary()`
+
+Gets comprehensive account summary for the stored account (uses derived account ID).
+
+**Returns:** `Promise<AccountSummary>`
+
+```typescript
+const summary = await sdk.accounts.getMyAccountSummary();
+console.log(`Total Positions: ${summary.totalPositions}`);
+```
+
+#### `sdk.accounts.getPositionByMarket(walletAddress, marketId)`
 
 Gets a specific position for a market.
+
+**Parameters:**
+
+- `walletAddress` - Wallet address
+- `marketId` - Market ID
 
 **Returns:** `Promise<IPosition | null>`
 
 ```typescript
 const position = await sdk.accounts.getPositionByMarket(
-  "account-id",
+  "0x742d35...",
   "market-id"
 );
+```
+
+#### `sdk.accounts.getMyPositionByMarket(marketId)`
+
+Gets a specific position for a market using the stored account.
+
+**Parameters:**
+
+- `marketId` - Market ID
+
+**Returns:** `Promise<IPosition | null>`
+
+```typescript
+const position = await sdk.accounts.getMyPositionByMarket("market-id");
 ```
 
 ### 📝 Orders Module

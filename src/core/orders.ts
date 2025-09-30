@@ -21,7 +21,7 @@ export class Orders {
   private readonly networkConfig: NetworkConfig;
   private readonly sessionKey: string;
   private readonly walletAddress: string;
-  private readonly getAccountId: () => Promise<string>;
+  private readonly getAccountId: () => string;
 
   constructor(
     httpClient: HttpClient,
@@ -29,7 +29,7 @@ export class Orders {
     networkConfig: NetworkConfig,
     sessionKey: string,
     walletAddress: string,
-    getAccountId: () => Promise<string>
+    getAccountId: () => string
   ) {
     this.httpClient = httpClient;
     this.orderbookClient = orderbookClient;
@@ -190,7 +190,7 @@ export class Orders {
     defaultSlippage: bigint = 10n
   ): Promise<any> {
     // Get account ID from stored credentials
-    const accountId = await this.getAccountId();
+    const accountId = this.getAccountId();
     const {
       marketId,
       size,

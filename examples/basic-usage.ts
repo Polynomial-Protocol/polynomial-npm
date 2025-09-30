@@ -53,8 +53,8 @@ async function runExample(): Promise<void> {
     }
     console.log(`💰 ETH Price: $${ethMarket.price}`);
 
-    // Step 3: Get account summary using stored credentials
-    const accountSummary = await sdk.getAccountSummary();
+    // Step 3: Get account summary using stored credentials (no parameters needed)
+    const accountSummary = await sdk.accounts.getMyAccountSummary();
     console.log("Account fetched", accountSummary);
 
     // Step 4: Create a simple market order using stored credentials
@@ -69,9 +69,6 @@ async function runExample(): Promise<void> {
 
     // Option 2: Use the direct orders module method if you need more control
     // const orderResult = await sdk.orders.createLongOrder(
-    //   SESSION_KEY,
-    //   WALLET_ADDRESS,
-    //   accountSummary.account.accountId,
     //   ethMarket.marketId,
     //   tradeSize,
     //   acceptablePrice

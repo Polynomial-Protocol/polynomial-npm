@@ -14,13 +14,13 @@ export class Accounts {
   private readonly httpClient: HttpClient;
   private readonly chainId: number;
   private readonly walletAddress: string;
-  private readonly getAccountId: () => Promise<string>;
+  private readonly getAccountId: () => string;
 
   constructor(
     httpClient: HttpClient,
     chainId: number,
     walletAddress: string,
-    getAccountId: () => Promise<string>
+    getAccountId: () => string
   ) {
     this.httpClient = httpClient;
     this.chainId = chainId;
@@ -202,17 +202,43 @@ export class Accounts {
   }
 
   /**
-   * Gets all positions for the stored account
+   * Gets all positions for the stored account using derived account ID
    */
   async getMyPositions(): Promise<IPosition[]> {
-    return this.getPositions(this.walletAddress);
+    const accountId = this.getAccountId();
+    try {
+      const response = await this.httpClient.get<IPositionDataReceived>(
+        `positions/v2?accountId=${accountId}&chainId=${this.chainId}`
+      );
+
+      return response.positions || [];
+    } catch (error) {
+      throw new AccountError(
+        `Failed to fetch positions for account ${accountId}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { accountId, chainId: this.chainId }
+      );
+    }
   }
 
   /**
    * Gets a specific position by market ID for the stored account
    */
   async getMyPositionByMarket(marketId: string): Promise<IPosition | null> {
-    return this.getPositionByMarket(this.walletAddress, marketId);
+    try {
+      const positions = await this.getMyPositions();
+      return (
+        positions.find((position) => position.marketId === marketId) || null
+      );
+    } catch (error) {
+      throw new AccountError(
+        `Failed to fetch position for market ${marketId}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { accountId: this.getAccountId(), marketId }
+      );
+    }
   }
 
   /**
@@ -225,6 +251,54 @@ export class Accounts {
     totalUnrealizedPnl: string;
     totalRealizedPnl: string;
   }> {
-    return this.getAccountSummary(this.walletAddress);
+    try {
+      // Get account by wallet address (this still uses wallet address as it's the lookup key)
+      const account = await this.getAccount(this.walletAddress);
+
+      if (!account) {
+        throw new AccountError(
+          `Account not found for wallet: ${this.walletAddress}`,
+          {
+            walletAddress: this.walletAddress,
+          }
+        );
+      }
+
+      // Get positions using the derived account ID
+      const positions = await this.getMyPositions();
+
+      // Calculate totals
+      const totalUnrealizedPnl = positions
+        .reduce((sum, pos) => {
+          const unrealizedPnl = parseFloat(pos.totalRealisedPnlUsd || "0");
+          return sum + unrealizedPnl;
+        }, 0)
+        .toFixed(2);
+
+      const totalRealizedPnl = positions
+        .reduce((sum, pos) => {
+          const realizedPnl = parseFloat(pos.totalRealisedPnlUsd || "0");
+          return sum + realizedPnl;
+        }, 0)
+        .toFixed(2);
+
+      return {
+        account,
+        positions,
+        totalPositions: positions.length,
+        totalUnrealizedPnl,
+        totalRealizedPnl,
+      };
+    } catch (error) {
+      if (error instanceof AccountError) {
+        throw error;
+      }
+      throw new AccountError(
+        `Failed to fetch account summary: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        { walletAddress: this.walletAddress, accountId: this.getAccountId() }
+      );
+    }
   }
 }
