@@ -8,28 +8,32 @@
  */
 
 import { PolynomialSDK, parseUnits } from "polynomialfi";
+import * as dotenv from "dotenv";
 
-// Required configuration - update these values with your actual credentials
-const API_KEY = "q7k9z2m1v4r8x0b5n6c3s1h9t2y4w8a1"; // Your Polynomial API key
-const SESSION_KEY =
-  "0xaed8638a12731fc71302f7256df5adce68e0a9784ae11dd628b7453d762f62fb"; // Your session key for signing orders
-const WALLET_ADDRESS = "0x3d6C731daCFD0d259fadC5124a7C14f4F544F2DC"; // Your wallet address
+// Load environment variables from .env file
+dotenv.config();
+
+// Required configuration - loaded from environment variables
+const API_KEY = process.env.API_KEY;
+const SESSION_KEY = process.env.SESSION_KEY;
+const WALLET_ADDRESS = process.env.WALLET_ADDRESS;
+const CHAIN_ID = process.env.CHAIN_ID ? parseInt(process.env.CHAIN_ID) : 8008;
 
 async function runExample(): Promise<void> {
   // Validate required configuration values
   if (!API_KEY) {
     throw new Error(
-      "API_KEY is required - please update the API_KEY variable with your actual API key"
+      "API_KEY is required - please set API_KEY in your .env file"
     );
   }
   if (!SESSION_KEY) {
     throw new Error(
-      "SESSION_KEY is required - please update the SESSION_KEY variable with your actual session key"
+      "SESSION_KEY is required - please set SESSION_KEY in your .env file"
     );
   }
   if (!WALLET_ADDRESS) {
     throw new Error(
-      "WALLET_ADDRESS is required - please update the WALLET_ADDRESS variable with your actual wallet address"
+      "WALLET_ADDRESS is required - please set WALLET_ADDRESS in your .env file"
     );
   }
 
@@ -40,7 +44,7 @@ async function runExample(): Promise<void> {
       apiKey: API_KEY,
       sessionKey: SESSION_KEY,
       walletAddress: WALLET_ADDRESS,
-      chainId: 8008,
+      chainId: CHAIN_ID,
     });
 
     // Step 1: List all markets
@@ -49,7 +53,7 @@ async function runExample(): Promise<void> {
 
     // Debug: Show available markets
     console.log("Available markets:");
-    markets.forEach((market) => {
+    markets.forEach((market: any) => {
       console.log(
         `- ${market.symbol}: ID=${market.marketId}, Price=$${market.price}`
       );

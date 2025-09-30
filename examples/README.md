@@ -10,36 +10,44 @@ This directory contains example usage of the **polynomialfi** npm package.
 npm install
 ```
 
-### 2. Run the Examples
+### 2. Configure Environment Variables
 
-**JavaScript version:**
+Copy the example environment file and fill in your credentials:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env` with your actual values:
+
+```bash
+# Your Polynomial API key
+API_KEY=your_actual_api_key_here
+
+# Your session key for signing orders
+SESSION_KEY=your_actual_session_key_here
+
+# Your wallet address
+WALLET_ADDRESS=your_actual_wallet_address_here
+
+# Chain ID (8008 for Polynomial mainnet)
+CHAIN_ID=8008
+```
+
+**⚠️ Important**: Never commit your `.env` file to version control. It contains sensitive credentials.
+
+### 3. Run the Examples
 
 ```bash
 npm start
 # or
-node basic-usage.js
-```
-
-**TypeScript version:**
-
-```bash
-npm run start:ts
-# or
 npx ts-node -P ./tsconfig.json basic-usage.ts
 ```
 
-### 3. Development Mode (with auto-reload)
-
-**JavaScript:**
+### 4. Development Mode (with auto-reload)
 
 ```bash
 npm run dev
-```
-
-**TypeScript:**
-
-```bash
-npm run dev:ts
 ```
 
 ## 📋 What the Examples Demonstrate
@@ -52,23 +60,11 @@ The example scripts showcase:
 - ✅ **Order Creation** - Creating and signing market orders
 - ✅ **Error Handling** - Proper error handling patterns
 
-## 🔧 Configuration
-
-The examples use environment variables for configuration:
-
-```bash
-# Optional - for full functionality
-export POLYNOMIAL_API_KEY="your-api-key"
-export SESSION_KEY="your-session-key"
-export WALLET_ADDRESS="your-wallet-address"
-```
-
-**Demo Mode**: If you don't provide these environment variables, the examples will run in demo mode, showing market data and error handling without requiring real credentials.
-
 ## 📁 Files
 
-- `basic-usage.js` - CommonJS version of the example
-- `basic-usage.ts` - TypeScript version of the example
+- `basic-usage.ts` - TypeScript example demonstrating SDK usage
+- `.env.example` - Example environment configuration file
+- `.env` - Your actual environment configuration (not tracked in git)
 - `tsconfig.json` - TypeScript configuration for examples
 - `package.json` - npm package configuration
 - `README.md` - This file
