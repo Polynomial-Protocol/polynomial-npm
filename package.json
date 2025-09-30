@@ -1,6 +1,6 @@
 {
   "name": "polynomialfi",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Official TypeScript SDK for Polynomial Perpetuals - Trade crypto perpetuals with ease",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
