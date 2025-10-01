@@ -2,6 +2,7 @@ import { HttpClient } from "./http";
 import { Markets } from "./markets";
 import { Accounts } from "./accounts";
 import { Orders } from "./orders";
+import { PostTradeDetails } from "./post-trade-details";
 import { ConfigurationError, ValidationError, AccountError } from "../errors";
 import { NETWORKS } from "../config";
 import { isValidAddress } from "../utils";
@@ -78,6 +79,7 @@ export class PolynomialSDK {
         this.markets = new Markets(this.httpClient, this.config.chainId);
         this.accounts = new Accounts(this.httpClient, this.config.chainId, this.walletAddress, () => this.getAccountId());
         this.orders = new Orders(this.httpClient, this.orderbookClient, this.networkConfig, this.sessionKey, this.walletAddress, () => this.getAccountId());
+        this.postTradeDetails = new PostTradeDetails(this.httpClient, this.config.chainId);
     }
     /**
      * Gets the account ID that was fetched from the API during initialization
@@ -293,6 +295,67 @@ export class PolynomialSDK {
             throw new ValidationError("Wallet address is required for trade size operations. Please provide walletAddress when creating the SDK instance.", { operation: "max_trade_sizes" });
         }
         return await this.accounts.getMaxPossibleTradeSizes(marketId);
+    }
+    /**
+     * Get post-trade details for a market order using stored credentials
+     */
+    async getPostTradeDetails(marketId, sizeDelta) {
+        try {
+            return await this.postTradeDetails.getPostTradeDetailsForAccount(marketId, sizeDelta, () => this.getAccountId());
+        }
+        catch (error) {
+            if (error instanceof ValidationError) {
+                throw error;
+            }
+            throw new ValidationError(`Failed to get post-trade details: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, sizeDelta, walletAddress: this.walletAddress });
+        }
+    }
+    /**
+     * Get post-trade details for a limit order using stored credentials
+     */
+    async getPostTradeDetailsLimit(marketId, sizeDelta, limitPrice) {
+        try {
+            return await this.postTradeDetails.getPostTradeDetailsLimitForAccount(marketId, sizeDelta, limitPrice, () => this.getAccountId());
+        }
+        catch (error) {
+            if (error instanceof ValidationError) {
+                throw error;
+            }
+            throw new ValidationError(`Failed to get post-trade details for limit order: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, sizeDelta, limitPrice, walletAddress: this.walletAddress });
+        }
+    }
+    /**
+     * Check if a market trade is feasible using stored credentials
+     */
+    async isTradeFeasible(marketId, sizeDelta) {
+        try {
+            const accountId = this.getAccountId();
+            return await this.postTradeDetails.isTradeFeasible({
+                accountId,
+                marketId,
+                sizeDelta,
+            });
+        }
+        catch (error) {
+            return false;
+        }
+    }
+    /**
+     * Check if a limit trade is feasible using stored credentials
+     */
+    async isLimitTradeFeasible(marketId, sizeDelta, limitPrice) {
+        try {
+            const accountId = this.getAccountId();
+            return await this.postTradeDetails.isLimitTradeFeasible({
+                accountId,
+                marketId,
+                sizeDelta,
+                limitPrice,
+            });
+        }
+        catch (error) {
+            return false;
+        }
     }
 }
 //# sourceMappingURL=sdk.js.map

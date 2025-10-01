@@ -147,6 +147,17 @@ async function runExample(): Promise<void> {
       "Limit Order ID:",
       limitOrder.id || limitOrder.orderId || "N/A"
     );
+
+    // Step 6: Analyze trade impact
+    console.log("\n📊 Analyzing trade impact...");
+    const tradeDetails = await sdk.getPostTradeDetails(
+      selectedMarket.marketId,
+      tradeSize.toString()
+    );
+    console.log("Trade Analysis:");
+    console.log(`- Feasible: ${tradeDetails.feasible}`);
+    console.log(`- Health Factor: ${tradeDetails.newHealthFactor}`);
+    console.log(`- Total Fees: ${tradeDetails.totalFees}`);
   } catch (error) {
     console.error("❌ Error:", error instanceof Error ? error.message : error);
   }

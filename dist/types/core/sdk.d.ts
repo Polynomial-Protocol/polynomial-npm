@@ -1,6 +1,7 @@
 import { Markets } from "./markets";
 import { Accounts } from "./accounts";
 import { Orders } from "./orders";
+import { PostTradeDetails } from "./post-trade-details";
 import { SDKConfig, NetworkConfig } from "../config";
 import { IAccountAPIResponse } from "../types";
 /**
@@ -21,6 +22,7 @@ export declare class PolynomialSDK {
     readonly markets: Markets;
     readonly accounts: Accounts;
     readonly orders: Orders;
+    readonly postTradeDetails: PostTradeDetails;
     private constructor();
     /**
      * Gets the account ID that was fetched from the API during initialization
@@ -98,6 +100,22 @@ export declare class PolynomialSDK {
      * Uses the walletAddress provided during SDK initialization
      */
     getMaxPossibleTradeSizes(marketId: string): Promise<import("../types").IMaxTradeSizeResponse>;
+    /**
+     * Get post-trade details for a market order using stored credentials
+     */
+    getPostTradeDetails(marketId: string, sizeDelta: string): Promise<any>;
+    /**
+     * Get post-trade details for a limit order using stored credentials
+     */
+    getPostTradeDetailsLimit(marketId: string, sizeDelta: string, limitPrice: string): Promise<any>;
+    /**
+     * Check if a market trade is feasible using stored credentials
+     */
+    isTradeFeasible(marketId: string, sizeDelta: string): Promise<boolean>;
+    /**
+     * Check if a limit trade is feasible using stored credentials
+     */
+    isLimitTradeFeasible(marketId: string, sizeDelta: string, limitPrice: string): Promise<boolean>;
 }
 export {};
 //# sourceMappingURL=sdk.d.ts.map

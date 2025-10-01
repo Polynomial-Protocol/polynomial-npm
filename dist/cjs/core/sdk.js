@@ -5,6 +5,7 @@ const http_1 = require("./http");
 const markets_1 = require("./markets");
 const accounts_1 = require("./accounts");
 const orders_1 = require("./orders");
+const post_trade_details_1 = require("./post-trade-details");
 const errors_1 = require("../errors");
 const config_1 = require("../config");
 const utils_1 = require("../utils");
@@ -81,6 +82,7 @@ class PolynomialSDK {
         this.markets = new markets_1.Markets(this.httpClient, this.config.chainId);
         this.accounts = new accounts_1.Accounts(this.httpClient, this.config.chainId, this.walletAddress, () => this.getAccountId());
         this.orders = new orders_1.Orders(this.httpClient, this.orderbookClient, this.networkConfig, this.sessionKey, this.walletAddress, () => this.getAccountId());
+        this.postTradeDetails = new post_trade_details_1.PostTradeDetails(this.httpClient, this.config.chainId);
     }
     /**
      * Gets the account ID that was fetched from the API during initialization
@@ -296,6 +298,67 @@ class PolynomialSDK {
             throw new errors_1.ValidationError("Wallet address is required for trade size operations. Please provide walletAddress when creating the SDK instance.", { operation: "max_trade_sizes" });
         }
         return await this.accounts.getMaxPossibleTradeSizes(marketId);
+    }
+    /**
+     * Get post-trade details for a market order using stored credentials
+     */
+    async getPostTradeDetails(marketId, sizeDelta) {
+        try {
+            return await this.postTradeDetails.getPostTradeDetailsForAccount(marketId, sizeDelta, () => this.getAccountId());
+        }
+        catch (error) {
+            if (error instanceof errors_1.ValidationError) {
+                throw error;
+            }
+            throw new errors_1.ValidationError(`Failed to get post-trade details: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, sizeDelta, walletAddress: this.walletAddress });
+        }
+    }
+    /**
+     * Get post-trade details for a limit order using stored credentials
+     */
+    async getPostTradeDetailsLimit(marketId, sizeDelta, limitPrice) {
+        try {
+            return await this.postTradeDetails.getPostTradeDetailsLimitForAccount(marketId, sizeDelta, limitPrice, () => this.getAccountId());
+        }
+        catch (error) {
+            if (error instanceof errors_1.ValidationError) {
+                throw error;
+            }
+            throw new errors_1.ValidationError(`Failed to get post-trade details for limit order: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, sizeDelta, limitPrice, walletAddress: this.walletAddress });
+        }
+    }
+    /**
+     * Check if a market trade is feasible using stored credentials
+     */
+    async isTradeFeasible(marketId, sizeDelta) {
+        try {
+            const accountId = this.getAccountId();
+            return await this.postTradeDetails.isTradeFeasible({
+                accountId,
+                marketId,
+                sizeDelta,
+            });
+        }
+        catch (error) {
+            return false;
+        }
+    }
+    /**
+     * Check if a limit trade is feasible using stored credentials
+     */
+    async isLimitTradeFeasible(marketId, sizeDelta, limitPrice) {
+        try {
+            const accountId = this.getAccountId();
+            return await this.postTradeDetails.isLimitTradeFeasible({
+                accountId,
+                marketId,
+                sizeDelta,
+                limitPrice,
+            });
+        }
+        catch (error) {
+            return false;
+        }
     }
 }
 exports.PolynomialSDK = PolynomialSDK;

@@ -496,5 +496,132 @@ describe("PolynomialSDK", () => {
         )
       ).rejects.toThrow(ValidationError);
     });
+
+    it("should get post-trade details for market order", async () => {
+      jest
+        .spyOn(sdk.postTradeDetails, "getPostTradeDetailsForAccount")
+        .mockResolvedValue({
+          totalFees: "734599175612000230",
+          fillPrice: "220652558184198079758",
+          newHealthFactor: 3.7238042187634033,
+          settlementReward: "60951313790555054",
+          ammFees: "673647861821445176",
+          nonVipAmmFees: "673647861821445176",
+          priceImpact: "138165005565406",
+          newMarginUsage: 26.854258206197503,
+          feasible: true,
+          isPriceImpactProfitable: false,
+          liquidationPrice: "189393715882719020000",
+          errorMsg: null,
+        });
+
+      const result = await sdk.getPostTradeDetails(
+        "market-1",
+        "5553300111308114473"
+      );
+      expect(result).toBeDefined();
+      expect(result.feasible).toBe(true);
+      expect(result.newHealthFactor).toBe(3.7238042187634033);
+      expect(
+        sdk.postTradeDetails.getPostTradeDetailsForAccount
+      ).toHaveBeenCalledWith(
+        "market-1",
+        "5553300111308114473",
+        expect.any(Function)
+      );
+    });
+
+    it("should get post-trade details for limit order", async () => {
+      jest
+        .spyOn(sdk.postTradeDetails, "getPostTradeDetailsLimitForAccount")
+        .mockResolvedValue({
+          totalFees: "734599175612000230",
+          fillPrice: "220652558184198079758",
+          newHealthFactor: 3.7238042187634033,
+          settlementReward: "60951313790555054",
+          ammFees: "673647861821445176",
+          nonVipAmmFees: "673647861821445176",
+          priceImpact: "138165005565406",
+          newMarginUsage: 26.854258206197503,
+          feasible: true,
+          isPriceImpactProfitable: false,
+          liquidationPrice: "189393715882719020000",
+          errorMsg: null,
+        });
+
+      const result = await sdk.getPostTradeDetailsLimit(
+        "market-1",
+        "5553777890581447523",
+        "220639000000000000000"
+      );
+      expect(result).toBeDefined();
+      expect(result.feasible).toBe(true);
+      expect(
+        sdk.postTradeDetails.getPostTradeDetailsLimitForAccount
+      ).toHaveBeenCalledWith(
+        "market-1",
+        "5553777890581447523",
+        "220639000000000000000",
+        expect.any(Function)
+      );
+    });
+
+    it("should check if trade is feasible", async () => {
+      jest
+        .spyOn(sdk.postTradeDetails, "isTradeFeasible")
+        .mockResolvedValue(true);
+
+      const isFeasible = await sdk.isTradeFeasible(
+        "market-1",
+        "5553300111308114473"
+      );
+      expect(isFeasible).toBe(true);
+      expect(sdk.postTradeDetails.isTradeFeasible).toHaveBeenCalledWith({
+        accountId: "123456789",
+        marketId: "market-1",
+        sizeDelta: "5553300111308114473",
+      });
+    });
+
+    it("should check if limit trade is feasible", async () => {
+      jest
+        .spyOn(sdk.postTradeDetails, "isLimitTradeFeasible")
+        .mockResolvedValue(true);
+
+      const isFeasible = await sdk.isLimitTradeFeasible(
+        "market-1",
+        "5553777890581447523",
+        "220639000000000000000"
+      );
+      expect(isFeasible).toBe(true);
+      expect(sdk.postTradeDetails.isLimitTradeFeasible).toHaveBeenCalledWith({
+        accountId: "123456789",
+        marketId: "market-1",
+        sizeDelta: "5553777890581447523",
+        limitPrice: "220639000000000000000",
+      });
+    });
+
+    it("should handle post-trade details errors", async () => {
+      jest
+        .spyOn(sdk.postTradeDetails, "getPostTradeDetailsForAccount")
+        .mockRejectedValue(new Error("Network error"));
+
+      await expect(
+        sdk.getPostTradeDetails("market-1", "5553300111308114473")
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it("should return false for feasibility check on error", async () => {
+      jest
+        .spyOn(sdk.postTradeDetails, "isTradeFeasible")
+        .mockRejectedValue(new Error("Network error"));
+
+      const isFeasible = await sdk.isTradeFeasible(
+        "market-1",
+        "5553300111308114473"
+      );
+      expect(isFeasible).toBe(false);
+    });
   });
 });

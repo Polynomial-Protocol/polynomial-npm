@@ -288,3 +288,46 @@ export interface IMaxTradeSizeResponse {
   maxPossibleTradeSizeForLong: string;
   maxPossibleTradeSizeForShort: string;
 }
+
+/**
+ * ============================
+ * Post Trade Details Interfaces
+ * ============================
+ */
+
+/**
+ * Request payload for post-trade details (market orders)
+ */
+export interface PostTradeDetailsRequest {
+  accountId: string;
+  marketId: string;
+  sizeDelta: string;
+}
+
+/**
+ * Request payload for post-trade details (limit orders)
+ */
+export interface PostTradeDetailsLimitRequest {
+  accountId: string;
+  marketId: string;
+  sizeDelta: string;
+  limitPrice: string;
+}
+
+/**
+ * Response from post-trade details API
+ */
+export interface PostTradeDetailsResponse {
+  totalFees: string;
+  fillPrice: string;
+  newHealthFactor: number;
+  settlementReward: string;
+  ammFees: string;
+  nonVipAmmFees: string;
+  priceImpact: string;
+  newMarginUsage: number;
+  feasible: boolean;
+  isPriceImpactProfitable: boolean;
+  liquidationPrice: string;
+  errorMsg: string | null;
+}

@@ -26,6 +26,7 @@ _Trade crypto perpetuals with ease using a type-safe SDK_
 - 📊 **Market data** - Real-time market information and statistics
 - 💼 **Account management** - Account and position management
 - 📝 **Order management** - Create, sign, and submit market and limit orders
+- 📊 **Trade analysis** - Post-trade analysis with fees, health factor, and feasibility
 - 🛡️ **Error handling** - Comprehensive error types and handling
 - ⚡ **High performance** - Optimized for speed with minimal dependencies
 

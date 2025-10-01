@@ -1,85 +1,85 @@
-# Polynomial SDK - Limit Order Support Implementation
+# Polynomial SDK - Post Trade Details API Implementation
 
 ## Background and Motivation
 
-The user has requested to add support for limit orders to the polynomial-npm SDK package. Currently, the SDK only supports market orders through the `Orders` class. The limit order API endpoint is available at `https://orderbook-mainnet.polynomial.finance/api/limit_order/<market_id>` and follows a similar pattern to the existing market order implementation.
+The user has requested to add support for the post-trade-details API endpoint to the polynomial-npm SDK. This API provides detailed information about the effects of a trade before it's executed, including fees, price impact, health factor, and feasibility.
 
-The goal is to extend the current SDK to support limit orders while maintaining consistency with the existing codebase architecture and patterns.
+**API Endpoint**: `https://perps-api-mainnet.polynomial.finance/post-trade-details?chainId=8008`
+
+**Purpose**: Get pre-trade analysis including fees, price impact, health factor, and trade feasibility.
 
 ## Key Challenges and Analysis
 
-### Current Market Order Implementation Analysis
+### API Requirements Analysis
 
-- Market orders are implemented in `src/core/orders.ts` with the `Orders` class
-- Uses EIP-712 signing for order authentication
-- Submits to `market_order/<marketId>` endpoint
-- Has comprehensive error handling and validation
-- Supports slippage calculation and price protection
+- **Market Orders**: Require `accountId`, `marketId`, and `sizeDelta`
+- **Limit Orders**: Require `accountId`, `marketId`, `sizeDelta`, and `limitPrice`
+- **Response**: Comprehensive trade analysis including fees, health factor, liquidation price, etc.
 
-### Limit Order Requirements
+### Current SDK Structure Analysis
 
-- Similar structure to market orders but with different endpoint (`limit_order/<marketId>`)
-- Requires `acceptablePrice` parameter (limit price)
-- Same signing mechanism (EIP-712)
-- Same validation and error handling patterns
-- Should integrate seamlessly with existing SDK architecture
+- SDK already has `HttpClient` for API calls
+- Has `Accounts` module for account-related operations
+- Has `Orders` module for order creation
+- Need to add new module or extend existing modules
 
 ### Technical Considerations
 
-- Need to create new types for limit order requests and signing
-- Extend the `Orders` class with limit order methods
-- Maintain consistency with existing API patterns
-- Ensure proper TypeScript typing
-- Add comprehensive tests
+- Need to create new types for request/response
+- Should integrate with existing SDK architecture
+- Need proper error handling and validation
+- Should be accessible from main SDK class
+- Need comprehensive tests
 
 ## High-level Task Breakdown
 
-### Task 1: Create Limit Order Types
+### Task 1: Create Post Trade Details Types
 
-- **Success Criteria**: New TypeScript interfaces for limit order requests and signing are defined
+- **Success Criteria**: TypeScript interfaces for request and response are defined
 - **Details**:
-  - Create `LimitOrderRequest` interface
-  - Create `LimitOrderToSign` interface
-  - Create `LimitOrderParams` interface
+  - Create `PostTradeDetailsRequest` interface for market orders
+  - Create `PostTradeDetailsLimitRequest` interface for limit orders
+  - Create `PostTradeDetailsResponse` interface for API response
   - Add to `src/types/index.ts`
 
-### Task 2: Extend Orders Class with Limit Order Methods
+### Task 2: Create Post Trade Details Module
 
-- **Success Criteria**: `Orders` class has new methods for limit order creation and submission
+- **Success Criteria**: New module with methods for post-trade analysis
 - **Details**:
-  - Add `createLimitOrder()` method
-  - Add `submitLimitOrder()` private method
-  - Add `signLimitOrder()` private method
-  - Add convenience methods like `createLimitLongOrder()` and `createLimitShortOrder()`
+  - Create `src/core/post-trade-details.ts` module
+  - Add `getPostTradeDetails()` method for market orders
+  - Add `getPostTradeDetailsLimit()` method for limit orders
+  - Implement proper error handling and validation
 
-### Task 3: Update SDK Main Class
+### Task 3: Integrate with Main SDK
 
-- **Success Criteria**: Main SDK class exposes limit order functionality
+- **Success Criteria**: Main SDK class exposes post-trade details functionality
 - **Details**:
-  - Add convenience methods to `PolynomialSDK` class
-  - Ensure proper error handling and validation
+  - Add post-trade-details module to SDK constructor
+  - Add convenience methods to main SDK class
+  - Ensure proper error handling
 
 ### Task 4: Add Tests
 
-- **Success Criteria**: Comprehensive tests for limit order functionality
+- **Success Criteria**: Comprehensive tests for post-trade details functionality
 - **Details**:
-  - Unit tests for limit order creation
-  - Integration tests for order submission
+  - Unit tests for module methods
+  - Integration tests for SDK methods
   - Error handling tests
 
 ### Task 5: Update Documentation
 
-- **Success Criteria**: Documentation updated with limit order examples
+- **Success Criteria**: Documentation updated with post-trade details examples
 - **Details**:
-  - Update README with limit order usage
+  - Update README with basic usage
   - Add examples in docs folder
   - Update type definitions
 
 ## Project Status Board
 
-- [x] **Task 1**: Create Limit Order Types
-- [x] **Task 2**: Extend Orders Class with Limit Order Methods
-- [x] **Task 3**: Update SDK Main Class
+- [x] **Task 1**: Create Post Trade Details Types
+- [x] **Task 2**: Create Post Trade Details Module
+- [x] **Task 3**: Integrate with Main SDK
 - [x] **Task 4**: Add Tests
 - [x] **Task 5**: Update Documentation
 
@@ -90,16 +90,16 @@ The goal is to extend the current SDK to support limit orders while maintaining 
 
 ### Implementation Summary:
 
-- ✅ Added limit order types (`LimitOrderRequest`, `LimitOrderToSign`, `LimitOrderParams`)
-- ✅ Extended `Orders` class with limit order methods (`createLimitOrder`, `createLimitLongOrder`, `createLimitShortOrder`)
-- ✅ Updated main SDK class with convenience methods for limit orders
-- ✅ Added comprehensive tests for all limit order functionality
-- ✅ Updated documentation with limit order examples and guides
+- ✅ Added post-trade details types (`PostTradeDetailsRequest`, `PostTradeDetailsLimitRequest`, `PostTradeDetailsResponse`)
+- ✅ Created `PostTradeDetails` module with comprehensive trade analysis methods
+- ✅ Integrated with main SDK class with convenience methods
+- ✅ Added comprehensive tests for all post-trade details functionality
+- ✅ Updated documentation with examples and guides
 - ✅ No linting errors detected
 
 ## Executor's Feedback or Assistance Requests
 
-**✅ IMPLEMENTATION COMPLETE** - All limit order functionality has been successfully implemented and tested. The SDK now supports both market orders and limit orders with full TypeScript support, comprehensive error handling, and extensive documentation.
+**✅ IMPLEMENTATION COMPLETE** - All post-trade details functionality has been successfully implemented and tested. The SDK now supports comprehensive trade analysis including fees, health factor, feasibility checks, and price impact analysis for both market and limit orders.
 
 ## Lessons
 
