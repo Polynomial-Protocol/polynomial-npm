@@ -4,7 +4,9 @@
 
 **Official TypeScript SDK for Polynomial Perpetuals**
 
-_Trade crypto perpetuals with ease using a production-ready, type-safe SDK_
+_Trade crypto perpetuals with ease using a type-safe SDK_
+
+> ⚠️ This package is in early beta and may have minor issues. We strive to improve it continuously.
 
 [![npm version](https://img.shields.io/npm/v/polynomialfi.svg)](https://www.npmjs.com/package/polynomialfi)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
