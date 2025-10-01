@@ -58,9 +58,9 @@ console.log("Order created:", order.id);
 
 ### API Reference
 
-- **[Accounts API](./docs/accounts.md)** - Account and position management
-- **[Orders API](./docs/orders.md)** - Create and manage trading orders
-- **[Markets API](./docs/markets.md)** - Market data and statistics
+- **[Accounts API](https://github.com/Polynomial-Protocol/polynomial-npm/blob/master/docs/accounts.md)** - Account and position management
+- **[Orders API](https://github.com/Polynomial-Protocol/polynomial-npm/blob/master/docs/orders.md)** - Create and manage trading orders
+- **[Markets API](https://github.com/Polynomial-Protocol/polynomial-npm/blob/master/docs/markets.md)** - Market data and statistics
 
 ## Configuration
 
