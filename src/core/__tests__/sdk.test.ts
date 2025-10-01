@@ -356,5 +356,145 @@ describe("PolynomialSDK", () => {
         undefined
       );
     });
+
+    it("should create limit order using stored credentials", async () => {
+      jest.spyOn(sdk.orders, "createLimitOrderSimple").mockResolvedValue({
+        orderId: "limit-order-123",
+        status: "submitted",
+        orderType: "limit",
+      });
+
+      const result = await sdk.createLimitOrder(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000") // 2 ETH limit price
+      );
+      expect(result).toBeDefined();
+      expect(result.orderId).toBe("limit-order-123");
+      expect(result.orderType).toBe("limit");
+      expect(sdk.orders.createLimitOrderSimple).toHaveBeenCalledWith(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        undefined
+      );
+    });
+
+    it("should create limit order with options", async () => {
+      jest.spyOn(sdk.orders, "createLimitOrderSimple").mockResolvedValue({
+        orderId: "limit-order-456",
+        status: "submitted",
+        orderType: "limit",
+      });
+
+      const result = await sdk.createLimitOrder(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        {
+          isLong: false,
+          reduceOnly: true,
+        }
+      );
+      expect(result).toBeDefined();
+      expect(result.orderId).toBe("limit-order-456");
+      expect(sdk.orders.createLimitOrderSimple).toHaveBeenCalledWith(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        {
+          isLong: false,
+          reduceOnly: true,
+        }
+      );
+    });
+
+    it("should create limit long order", async () => {
+      jest.spyOn(sdk.orders, "createLimitLongOrder").mockResolvedValue({
+        orderId: "limit-long-123",
+        status: "submitted",
+        orderType: "limit",
+        isLong: true,
+      });
+
+      const result = await sdk.createLimitLongOrder(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000")
+      );
+      expect(result).toBeDefined();
+      expect(result.orderId).toBe("limit-long-123");
+      expect(result.isLong).toBe(true);
+      expect(sdk.orders.createLimitLongOrder).toHaveBeenCalledWith(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        false
+      );
+    });
+
+    it("should create limit short order", async () => {
+      jest.spyOn(sdk.orders, "createLimitShortOrder").mockResolvedValue({
+        orderId: "limit-short-123",
+        status: "submitted",
+        orderType: "limit",
+        isLong: false,
+      });
+
+      const result = await sdk.createLimitShortOrder(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000")
+      );
+      expect(result).toBeDefined();
+      expect(result.orderId).toBe("limit-short-123");
+      expect(result.isLong).toBe(false);
+      expect(sdk.orders.createLimitShortOrder).toHaveBeenCalledWith(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        false
+      );
+    });
+
+    it("should create limit short order with reduceOnly", async () => {
+      jest.spyOn(sdk.orders, "createLimitShortOrder").mockResolvedValue({
+        orderId: "limit-short-reduce-123",
+        status: "submitted",
+        orderType: "limit",
+        isLong: false,
+        reduceOnly: true,
+      });
+
+      const result = await sdk.createLimitShortOrder(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        true // reduceOnly
+      );
+      expect(result).toBeDefined();
+      expect(result.orderId).toBe("limit-short-reduce-123");
+      expect(result.reduceOnly).toBe(true);
+      expect(sdk.orders.createLimitShortOrder).toHaveBeenCalledWith(
+        "market-1",
+        BigInt("1000000000000000000"),
+        BigInt("2000000000000000000"),
+        true
+      );
+    });
+
+    it("should handle limit order creation errors", async () => {
+      jest
+        .spyOn(sdk.orders, "createLimitOrderSimple")
+        .mockRejectedValue(new Error("Network error"));
+
+      await expect(
+        sdk.createLimitOrder(
+          "market-1",
+          BigInt("1000000000000000000"),
+          BigInt("2000000000000000000")
+        )
+      ).rejects.toThrow(ValidationError);
+    });
   });
 });

@@ -3,8 +3,9 @@
  *
  * This example demonstrates:
  * 1. List all markets
- * 2. Get ETH market details
- * 3. Create a real market order for ETH
+ * 2. Get market details
+ * 3. Create a real market order
+ * 4. Create limit orders (buy and sell)
  */
 
 import { PolynomialSDK, parseUnits } from "polynomialfi";
@@ -128,8 +129,24 @@ async function runExample(): Promise<void> {
     //   acceptablePrice
     // );
 
-    console.log("✅ Order created successfully!");
+    console.log("✅ Market order created successfully!");
     console.log("Order ID:", orderResult.id || orderResult.orderId || "N/A");
+
+    // Step 5: Create a simple limit order
+    console.log("\n📋 Creating limit order...");
+    const currentPrice = parseUnits(selectedMarket.price.toString());
+    const limitPrice = (currentPrice * 95n) / 100n; // 5% below current price
+
+    const limitOrder = await sdk.createLimitOrder(
+      selectedMarket.marketId,
+      tradeSize,
+      limitPrice
+    );
+    console.log("✅ Limit order created!");
+    console.log(
+      "Limit Order ID:",
+      limitOrder.id || limitOrder.orderId || "N/A"
+    );
   } catch (error) {
     console.error("❌ Error:", error instanceof Error ? error.message : error);
   }

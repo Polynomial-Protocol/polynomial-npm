@@ -234,6 +234,182 @@ class Orders {
     calculateAcceptablePriceWithSlippage(marketPrice, slippagePercentage, isLong) {
         return (0, utils_1.calculateAcceptablePrice)(marketPrice, slippagePercentage, isLong);
     }
+    /**
+     * Signs a limit order using EIP-712 typed data
+     */
+    async signLimitOrder(sessionKey, order) {
+        if (!(0, utils_1.isValidPrivateKey)(sessionKey)) {
+            throw new errors_1.ValidationError("Invalid session key format", {
+                sessionKey: "REDACTED",
+            });
+        }
+        try {
+            const { marketId, accountId, sizeDelta, settlementStrategyId, referrerOrRelayer, allowAggregation, allowPartialMatching, acceptablePrice, expiration, nonce, chainId, eoa, reduceOnly, } = order;
+            // Domain setup as per EIP-712
+            const domain = {
+                name: this.networkConfig.perpFutures.name,
+                version: this.networkConfig.perpFutures.version,
+                chainId,
+                verifyingContract: this.networkConfig.perpFutures
+                    .address,
+            };
+            // Typed structure for the OffchainOrder object
+            const types = {
+                OffchainOrder: [
+                    { name: "marketId", type: "uint128" },
+                    { name: "accountId", type: "uint128" },
+                    { name: "sizeDelta", type: "int128" },
+                    { name: "settlementStrategyId", type: "uint128" },
+                    { name: "referrerOrRelayer", type: "address" },
+                    { name: "allowAggregation", type: "bool" },
+                    { name: "allowPartialMatching", type: "bool" },
+                    { name: "reduceOnly", type: "bool" },
+                    { name: "acceptablePrice", type: "uint256" },
+                    { name: "trackingCode", type: "bytes32" },
+                    { name: "expiration", type: "uint256" },
+                    { name: "nonce", type: "uint256" },
+                ],
+            };
+            // Final message to sign
+            const message = {
+                marketId,
+                accountId,
+                sizeDelta,
+                settlementStrategyId,
+                referrerOrRelayer,
+                allowAggregation,
+                allowPartialMatching,
+                reduceOnly,
+                acceptablePrice,
+                trackingCode: "0x0000000000000000000000000000000000000000000000000000000000000000",
+                expiration,
+                nonce,
+            };
+            // Convert session key into a signer account
+            const account = (0, accounts_1.privateKeyToAccount)(sessionKey);
+            // Return the EIP-712-compliant signature
+            return await account.signTypedData({
+                domain,
+                types,
+                primaryType: "OffchainOrder",
+                message,
+            });
+        }
+        catch (error) {
+            throw new errors_1.SigningError(`Failed to sign limit order: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId: order.marketId, accountId: order.accountId });
+        }
+    }
+    /**
+     * Submits a signed limit order to the orderbook endpoint
+     */
+    async submitLimitOrder(marketId, data) {
+        try {
+            return await this.orderbookClient.post(`limit_order/${marketId}`, data);
+        }
+        catch (error) {
+            throw new errors_1.OrderError(`Failed to submit limit order: ${error instanceof Error ? error.message : "Unknown error"}`, { marketId, orderData: { ...data, id: "REDACTED" } });
+        }
+    }
+    /**
+     * Creates and submits a limit order using stored credentials
+     */
+    async createLimitOrder(params) {
+        // Get account ID from stored credentials
+        const accountId = this.getAccountId();
+        const { marketId, size, isLong = true, // Default to long position
+        acceptablePrice, reduceOnly = false, } = params;
+        try {
+            // Build the order to sign
+            const orderToSign = {
+                marketId,
+                accountId,
+                sizeDelta: isLong ? size.toString() : `-${size.toString()}`,
+                settlementStrategyId: "0",
+                referrerOrRelayer: this.networkConfig.relayerAddress,
+                allowAggregation: true,
+                allowPartialMatching: true,
+                acceptablePrice: acceptablePrice.toString(),
+                trackingCode: "0x0000000000000000000000000000000000000000000000000000000000000000",
+                expiration: (0, utils_1.getWeekFromNowTimestamp)().toString(),
+                nonce: (0, utils_1.generateNonce)(),
+                chainId: this.networkConfig.chainId,
+                eoa: this.walletAddress,
+                reduceOnly,
+            };
+            console.log(JSON.stringify(orderToSign));
+            // Sign the order
+            const signature = await this.signLimitOrder(this.sessionKey, orderToSign);
+            // Create the limit order request
+            const limitOrderRequest = {
+                acceptablePrice: orderToSign.acceptablePrice,
+                accountId: orderToSign.accountId,
+                allowAggregation: orderToSign.allowAggregation,
+                allowPartialMatching: orderToSign.allowPartialMatching,
+                chainId: orderToSign.chainId,
+                expiration: orderToSign.expiration,
+                id: signature,
+                marketId: orderToSign.marketId,
+                nonce: orderToSign.nonce,
+                referrerOrRelayer: orderToSign.referrerOrRelayer,
+                settlementStrategyId: orderToSign.settlementStrategyId,
+                sizeDelta: orderToSign.sizeDelta,
+                trackingCode: orderToSign.trackingCode,
+                reduceOnly: orderToSign.reduceOnly,
+            };
+            // Submit the order
+            return await this.submitLimitOrder(marketId, limitOrderRequest);
+        }
+        catch (error) {
+            if (error instanceof errors_1.ValidationError ||
+                error instanceof errors_1.OrderError ||
+                error instanceof errors_1.SigningError) {
+                throw error;
+            }
+            throw new errors_1.OrderError(`Failed to create limit order: ${error instanceof Error ? error.message : "Unknown error"}`, {
+                marketId,
+                accountId,
+                size: size.toString(),
+                isLong,
+                walletAddress: this.walletAddress,
+            });
+        }
+    }
+    /**
+     * Creates a simple limit order with minimal parameters
+     * All other values will be calculated automatically or use defaults
+     */
+    async createLimitOrderSimple(marketId, size, acceptablePrice, options) {
+        return this.createLimitOrder({
+            marketId,
+            size,
+            acceptablePrice,
+            ...options,
+        });
+    }
+    /**
+     * Creates a long position limit order
+     */
+    async createLimitLongOrder(marketId, size, acceptablePrice, reduceOnly = false) {
+        return this.createLimitOrder({
+            marketId,
+            size,
+            isLong: true,
+            acceptablePrice,
+            reduceOnly,
+        });
+    }
+    /**
+     * Creates a short position limit order
+     */
+    async createLimitShortOrder(marketId, size, acceptablePrice, reduceOnly = false) {
+        return this.createLimitOrder({
+            marketId,
+            size,
+            isLong: false,
+            acceptablePrice,
+            reduceOnly,
+        });
+    }
 }
 exports.Orders = Orders;
 //# sourceMappingURL=orders.js.map

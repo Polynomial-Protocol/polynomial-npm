@@ -55,6 +55,25 @@ export declare class PolynomialSDK {
         slippagePercentage?: bigint;
     }): Promise<any>;
     /**
+     * Simple convenience method to create a limit order with minimal parameters
+     * Requires marketId, size, and acceptablePrice (limit price)
+     * Uses the sessionKey and walletAddress provided during SDK initialization
+     */
+    createLimitOrder(marketId: string, size: bigint, acceptablePrice: bigint, options?: {
+        isLong?: boolean;
+        reduceOnly?: boolean;
+    }): Promise<any>;
+    /**
+     * Convenience method to create a long position limit order
+     * Uses the sessionKey and walletAddress provided during SDK initialization
+     */
+    createLimitLongOrder(marketId: string, size: bigint, acceptablePrice: bigint, reduceOnly?: boolean): Promise<any>;
+    /**
+     * Convenience method to create a short position limit order
+     * Uses the sessionKey and walletAddress provided during SDK initialization
+     */
+    createLimitShortOrder(marketId: string, size: bigint, acceptablePrice: bigint, reduceOnly?: boolean): Promise<any>;
+    /**
      * Convenience method to get account summary with positions
      * Uses the walletAddress provided during SDK initialization
      */

@@ -1,5 +1,5 @@
 import { HttpClient } from "./http";
-import { OrderParams } from "../types";
+import { OrderParams, LimitOrderParams } from "../types";
 import { NetworkConfig } from "../config";
 /**
  * Orders module for handling order creation and submission
@@ -50,5 +50,33 @@ export declare class Orders {
      * Helper method to calculate acceptable price with slippage
      */
     calculateAcceptablePriceWithSlippage(marketPrice: bigint, slippagePercentage: bigint, isLong: boolean): bigint;
+    /**
+     * Signs a limit order using EIP-712 typed data
+     */
+    private signLimitOrder;
+    /**
+     * Submits a signed limit order to the orderbook endpoint
+     */
+    private submitLimitOrder;
+    /**
+     * Creates and submits a limit order using stored credentials
+     */
+    createLimitOrder(params: LimitOrderParams): Promise<any>;
+    /**
+     * Creates a simple limit order with minimal parameters
+     * All other values will be calculated automatically or use defaults
+     */
+    createLimitOrderSimple(marketId: string, size: bigint, acceptablePrice: bigint, options?: {
+        isLong?: boolean;
+        reduceOnly?: boolean;
+    }): Promise<any>;
+    /**
+     * Creates a long position limit order
+     */
+    createLimitLongOrder(marketId: string, size: bigint, acceptablePrice: bigint, reduceOnly?: boolean): Promise<any>;
+    /**
+     * Creates a short position limit order
+     */
+    createLimitShortOrder(marketId: string, size: bigint, acceptablePrice: bigint, reduceOnly?: boolean): Promise<any>;
 }
 //# sourceMappingURL=orders.d.ts.map

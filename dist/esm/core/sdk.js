@@ -187,6 +187,68 @@ export class PolynomialSDK {
         }
     }
     /**
+     * Simple convenience method to create a limit order with minimal parameters
+     * Requires marketId, size, and acceptablePrice (limit price)
+     * Uses the sessionKey and walletAddress provided during SDK initialization
+     */
+    async createLimitOrder(marketId, size, acceptablePrice, options) {
+        try {
+            // Create the limit order using the Orders module with stored credentials (including account ID)
+            return await this.orders.createLimitOrderSimple(marketId, size, acceptablePrice, options);
+        }
+        catch (error) {
+            if (error instanceof ValidationError) {
+                throw error;
+            }
+            throw new ValidationError(`Failed to create limit order: ${error instanceof Error ? error.message : "Unknown error"}`, {
+                marketId,
+                size: size.toString(),
+                acceptablePrice: acceptablePrice.toString(),
+                walletAddress: this.walletAddress,
+            });
+        }
+    }
+    /**
+     * Convenience method to create a long position limit order
+     * Uses the sessionKey and walletAddress provided during SDK initialization
+     */
+    async createLimitLongOrder(marketId, size, acceptablePrice, reduceOnly = false) {
+        try {
+            return await this.orders.createLimitLongOrder(marketId, size, acceptablePrice, reduceOnly);
+        }
+        catch (error) {
+            if (error instanceof ValidationError) {
+                throw error;
+            }
+            throw new ValidationError(`Failed to create limit long order: ${error instanceof Error ? error.message : "Unknown error"}`, {
+                marketId,
+                size: size.toString(),
+                acceptablePrice: acceptablePrice.toString(),
+                walletAddress: this.walletAddress,
+            });
+        }
+    }
+    /**
+     * Convenience method to create a short position limit order
+     * Uses the sessionKey and walletAddress provided during SDK initialization
+     */
+    async createLimitShortOrder(marketId, size, acceptablePrice, reduceOnly = false) {
+        try {
+            return await this.orders.createLimitShortOrder(marketId, size, acceptablePrice, reduceOnly);
+        }
+        catch (error) {
+            if (error instanceof ValidationError) {
+                throw error;
+            }
+            throw new ValidationError(`Failed to create limit short order: ${error instanceof Error ? error.message : "Unknown error"}`, {
+                marketId,
+                size: size.toString(),
+                acceptablePrice: acceptablePrice.toString(),
+                walletAddress: this.walletAddress,
+            });
+        }
+    }
+    /**
      * Convenience method to get account summary with positions
      * Uses the walletAddress provided during SDK initialization
      */

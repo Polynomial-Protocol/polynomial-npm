@@ -25,7 +25,7 @@ _Trade crypto perpetuals with ease using a type-safe SDK_
 - 🔒 **Type-safe** - Full TypeScript support with comprehensive type definitions
 - 📊 **Market data** - Real-time market information and statistics
 - 💼 **Account management** - Account and position management
-- 📝 **Order management** - Create, sign, and submit market orders
+- 📝 **Order management** - Create, sign, and submit market and limit orders
 - 🛡️ **Error handling** - Comprehensive error types and handling
 - ⚡ **High performance** - Optimized for speed with minimal dependencies
 

@@ -130,6 +130,44 @@ export interface MarketOrderToSign {
     reduceOnly: boolean;
 }
 /**
+ * Limit order payload sent to the orderbook API.
+ */
+export interface LimitOrderRequest {
+    acceptablePrice: string;
+    accountId: string;
+    allowAggregation: boolean;
+    allowPartialMatching: boolean;
+    chainId: number;
+    expiration: string;
+    id: string;
+    marketId: string;
+    nonce: string;
+    referrerOrRelayer: string;
+    settlementStrategyId: string;
+    sizeDelta: string;
+    trackingCode: string;
+    reduceOnly: boolean;
+}
+/**
+ * Payload structure used for signing a limit order.
+ */
+export interface LimitOrderToSign {
+    marketId: string;
+    accountId: string;
+    sizeDelta: string;
+    settlementStrategyId: string;
+    referrerOrRelayer: string;
+    allowAggregation: boolean;
+    allowPartialMatching: boolean;
+    acceptablePrice: string;
+    trackingCode: string;
+    expiration: string;
+    nonce: string;
+    chainId: number;
+    eoa: string;
+    reduceOnly: boolean;
+}
+/**
  * ==========================
  * Account-Related Interfaces
  * ==========================
@@ -158,6 +196,16 @@ export interface OrderParams {
     acceptablePrice?: bigint;
     reduceOnly?: boolean;
     slippagePercentage?: bigint;
+}
+/**
+ * Order parameters for creating limit orders
+ */
+export interface LimitOrderParams {
+    marketId: string;
+    size: bigint;
+    isLong?: boolean;
+    acceptablePrice: bigint;
+    reduceOnly?: boolean;
 }
 /**
  * Market data filters
