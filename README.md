@@ -6,8 +6,6 @@
 
 _Trade crypto perpetuals with ease using a type-safe SDK_
 
-> ⚠️ This package is in early beta and may have minor issues. We strive to improve it continuously.
-
 [![npm version](https://img.shields.io/npm/v/polynomialfi.svg)](https://www.npmjs.com/package/polynomialfi)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -88,6 +86,8 @@ const sdk = await PolynomialSDK.create({
 
 - **Bug Reports**: [GitHub Issues](https://github.com/Polynomial-Protocol/polynomial-npm/issues)
 - **General Questions**: [Discord Community](https://discord.gg/polynomial)
+
+_This SDK is in beta and actively developed and continuously improved._
 
 ## License
 
