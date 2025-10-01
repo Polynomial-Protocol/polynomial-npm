@@ -113,4 +113,4 @@ Caught validation error: Invalid wallet address format
 
 - [Polynomial Protocol](https://polynomial.fi)
 - [polynomialfi on npm](https://www.npmjs.com/package/polynomialfi)
-- [GitHub Repository](https://github.com/polynomial-protocol/polynomial-sdk)
+- [GitHub Repository](https://github.com/Polynomial-Protocol/polynomial-npm)

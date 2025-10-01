@@ -83,7 +83,7 @@ const sdk = await PolynomialSDK.create({
 
 ## Getting Help
 
-- **Bug Reports**: [GitHub Issues](https://github.com/polynomial-protocol/polynomial-sdk/issues)
+- **Bug Reports**: [GitHub Issues](https://github.com/Polynomial-Protocol/polynomial-npm/issues)
 - **General Questions**: [Discord Community](https://discord.gg/polynomial)
 
 ## License

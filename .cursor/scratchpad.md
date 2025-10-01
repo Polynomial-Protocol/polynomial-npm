@@ -713,6 +713,21 @@ polynomial-sdk/
 
 ## Executor's Feedback or Assistance Requests
 
+### ✅ **GitHub Repository Link Update - COMPLETED**
+
+**Task**: Replace old GitHub repository links with new repository URL
+
+- **Old URL**: `https://github.com/polynomial-protocol/polynomial-sdk`
+- **New URL**: `https://github.com/Polynomial-Protocol/polynomial-npm`
+
+**Files Updated**:
+
+- ✅ package.json (repository.url and bugs.url)
+- ✅ examples/README.md (GitHub Repository link)
+- ✅ README.md (Bug Reports link)
+
+**Status**: All GitHub links successfully updated to new repository URL.
+
 ### ✅ **Account ID Fetching Enhancement Completed**
 
 **Issue Identified**: User wanted the SDK to automatically fetch the account ID from the API when creating an SDK instance with session key and wallet address, instead of deriving it locally.
